@@ -14,11 +14,16 @@ const paymentAccountApi = {
     const formData = ConvertObjectToFormData(data, new FormData());
     return axiosClient(contentTypeFormData).post(url, formData);
   },
-  update(data: IPaymentAccountModel): Promise<IPaymentAccountModel> {
-    const url = `/PaymentAccounts/${data.id}`;
+  update(id: number, data: IPaymentAccountModel): Promise<IPaymentAccountModel> {
+    const url = `/PaymentAccounts/${id}`;
     const formData = ConvertObjectToFormData(data, new FormData());
     return axiosClient(contentTypeFormData).put(url, formData);
   },
+  delete(id: number): Promise<void> {
+    const url = `/PaymentAccounts/${id}`;
+    return axiosClient().delete(url);
+  },
+  
 };
 
 export default paymentAccountApi;

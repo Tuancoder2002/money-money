@@ -1,12 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import classNames from "classnames/bind";
 import styles from "./Sidebar.module.scss";
+import { Modal, Button } from "react-bootstrap";
+import TransactionCategories from "../TransactionCategories";
+
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import { faBars, faBookOpen, faSquare, faTable, faUser, faWallet } from '@fortawesome/free-solid-svg-icons';
 
 const cx = classNames.bind(styles);
 
 function Sidebar() {
+  const [showModal, setShowModal] = useState(false);
+
+  const handleOpenModal = () => {
+    setShowModal(true);
+  };
+
   return (
     <div className={cx("wraper-sidebar")}>
       <div className={cx("container-fluid")}>
@@ -53,16 +62,18 @@ function Sidebar() {
                 id="menu"
               >
                 <li className={cx("nav-item", "my-sm-1", "my-2")}>
-                  <a
-                    className={cx("nav-link", "text-white")}
-                    href="/"
-                    aria-current="page"
+                  {/* <FontAwesomeIcon icon={faSquare} className={cx('category__heading-icon')} /> */}
+                  <span
+                    onClick={handleOpenModal}
+                    className={cx(
+                      "ms-2",
+                      "d-none",
+                      "d-sm-inline",
+                      "text-white"
+                    )}
                   >
-                    {/* <FontAwesomeIcon icon={faSquare} className={cx('category__heading-icon')} /> */}
-                    <span className={cx("ms-2", "d-none", "d-sm-inline")}>
-                      Transactions
-                    </span>
-                  </a>
+                    Transactions
+                  </span>
                 </li>
                 <li className={cx("nav-item", "my-sm-1", "my-2")}>
                   <a
@@ -169,6 +180,19 @@ function Sidebar() {
           </div>
         </div>
       </div>
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Transactions Modal</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <TransactionCategories/>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Đóng
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }
