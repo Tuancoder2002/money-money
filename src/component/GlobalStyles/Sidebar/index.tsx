@@ -3,6 +3,8 @@ import classNames from "classnames/bind";
 import styles from "./Sidebar.module.scss";
 import { Modal, Button } from "react-bootstrap";
 import TransactionCategories from "../TransactionCategories";
+import PaymentAccount from "../PaymentAccount";
+
 
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import { faBars, faBookOpen, faSquare, faTable, faUser, faWallet } from '@fortawesome/free-solid-svg-icons';
@@ -10,10 +12,16 @@ import TransactionCategories from "../TransactionCategories";
 const cx = classNames.bind(styles);
 
 function Sidebar() {
-  const [showModal, setShowModal] = useState(false);
+  const [showModalTransaction, setShowModalTransaction] = useState(false);
+  const [showModalPaymentAccount, setShowModalPaymentAccount] = useState(false);
 
-  const handleOpenModal = () => {
-    setShowModal(true);
+
+  const handleOpenModalTransaction = () => {
+    setShowModalTransaction(true);
+  };
+
+  const handleOpenModalPaymentAccount = () => {
+    setShowModalPaymentAccount(true);
   };
 
   return (
@@ -64,7 +72,7 @@ function Sidebar() {
                 <li className={cx("nav-item", "my-sm-1", "my-2")}>
                   {/* <FontAwesomeIcon icon={faSquare} className={cx('category__heading-icon')} /> */}
                   <span
-                    onClick={handleOpenModal}
+                    onClick={handleOpenModalTransaction}
                     className={cx(
                       "ms-2",
                       "d-none",
@@ -129,7 +137,7 @@ function Sidebar() {
                     </div>
                   </div>
                 </li>
-                <li className={cx("nav-item", "my-1")}>
+                <li onClick={handleOpenModalPaymentAccount} className={cx("nav-item", "my-1")}>
                   <a
                     className={cx("nav-link", "text-white")}
                     href="/"
@@ -137,7 +145,7 @@ function Sidebar() {
                   >
                     {/* <FontAwesomeIcon icon={faWallet} className={cx('category__heading-icon')} /> */}
                     <span className={cx("ms-2", "d-none", "d-sm-inline")}>
-                      Categories
+                      PaymentAccount
                     </span>
                   </a>
                 </li>
@@ -180,7 +188,7 @@ function Sidebar() {
           </div>
         </div>
       </div>
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
+      <Modal show={showModalTransaction} onHide={() => setShowModalTransaction(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Transactions Modal</Modal.Title>
         </Modal.Header>
@@ -188,7 +196,21 @@ function Sidebar() {
           <TransactionCategories/>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+          <Button variant="secondary" onClick={() => setShowModalTransaction(false)}>
+            Đóng
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      {/* PaymentAccount  */}
+      <Modal show={showModalPaymentAccount} onHide={() => setShowModalPaymentAccount(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Transactions Modal</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <PaymentAccount/>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModalPaymentAccount(false)}>
             Đóng
           </Button>
         </Modal.Footer>

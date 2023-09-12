@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
-import styles from "./TransactionCategories.module.scss";
-import classNames from "classnames/bind";
 import { ITransactionCategoriesModel } from "../../../models/TransactionCategories/ITransactionCategories";
 import transactionCategoriesApi from "../../../apis/transactionCategoriesApi";
 
-const cx = classNames.bind(styles);
+
 
 function TransactionCategories() {
   const [viviData, setViviData] = useState<ITransactionCategoriesModel[]>([]);
