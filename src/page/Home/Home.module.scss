@@ -1,15 +1,16 @@
 .app__container {
-    height: 100vh; /* Đặt chiều cao của phần tử cha theo chiều cao của trình duyệt */
-    display: flex;
-    flex-direction: column; /* Đảm bảo các phần tử con được xếp dọc theo chiều dọc */
-    background-color: #dbdbdb;
-  }
-  
-  .app__wrapper{
-    display: flex;
-    height: 100%;
-  }
+  height: 100vh; /* Đặt chiều cao của phần tử cha theo chiều cao của trình duyệt */
+  display: flex;
+  flex-direction: column; /* Đảm bảo các phần tử con được xếp dọc theo chiều dọc */
+  background-color: #dbdbdb;
+}
 
-  .app__sidebar{
-    display: block;
-  }
+.app__wrapper {
+  display: flex;
+  height: 100%;
+}
+
+.app__sidebar {
+  display: block;
+}
+

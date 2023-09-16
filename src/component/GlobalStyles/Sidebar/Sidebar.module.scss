@@ -1,7 +1,65 @@
-.nav-pills li a:hover{
-    background-color: rgb(96, 96, 221);
+.nav-pills li a:hover {
+  background-color: rgb(96, 96, 221);
 }
 
-.wraper-sidebar{
-    display: block;
+.wraper-sidebar {
+  display: block;
 }
+
+/* CSS cho modal */
+.custom-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  background-color: rgba(0, 0, 0, 0.5); /* Màu nền mờ khi modal hiện ra */
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 0;
+  padding: 20px;
+  width: 363px; /* Chiều ngang của modal */
+  height: 100vh; /* Chiều cao của modal bằng chiều cao của trình duyệt */
+  position: relative;
+}
+
+/* Đóng modal khi nhấn vào nút x */
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+}
+
+.small-text {
+  font-size: 10px; /* Điều chỉnh kích thước chữ tùy theo mong muốn */
+  color: #757575 !important;
+  transition: transform 0.2s ease, color 0.2s ease; /* Hiệu ứng hover */
+  cursor: pointer;
+}
+
+.small-text:hover {
+  transform: scale(1.2); /* Phóng to biểu tượng khi hover */
+  color: #000;
+  text-shadow: none;
+}
+
+.icon-below-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon {
+    /* Thuộc tính và giá trị mặc định cho biểu tượng */
+    /* Ví dụ: */
+    font-size: 24px;
+    color: #757575;
+    transition: transform 0.2s ease, color 0.2s ease; /* Hiệu ứng hover */
+  }

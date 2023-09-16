@@ -1,3 +1,31 @@
-.wraper-header{
-    display: block;
+.wraper-header {
+  display: block;
+}
+
+/* CSS cho biểu tượng */
+.icon {
+  /* Thuộc tính và giá trị mặc định cho biểu tượng */
+  /* Ví dụ: */
+  font-size: 24px;
+  color: #757575;
+  transition: transform 0.2s ease, color 0.2s ease; /* Hiệu ứng hover */
+  cursor: pointer;
+}
+
+/* Định nghĩa hiệu ứng hover */
+.icon:hover {
+  transform: scale(1.2); /* Phóng to biểu tượng khi hover */
+  color: #000;
+  text-shadow: none;
+}
+
+.avatar {
+  border-radius: 50%;
+  width: 35px;
+}
+
+.custom-button {
+  width: 18px;
+  height: 12px;
+  /* Các thuộc tính CSS khác theo nhu cầu của bạn */
 }

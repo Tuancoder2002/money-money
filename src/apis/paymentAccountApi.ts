@@ -7,6 +7,7 @@ import { ConvertObjectToFormData } from "../unils/common";
 const paymentAccountApi = {
   getAll(data: IFilterBodyRequest): Promise<IBasePaging<IPaymentAccountModel>> {
     const url = "/paymentAccounts/filter";
+    data.pagination = { pageSize: 1000 };
     return axiosClient().post(url, data);
   },
   create(data: IPaymentAccountModel): Promise<IPaymentAccountModel> {
@@ -14,16 +15,18 @@ const paymentAccountApi = {
     const formData = ConvertObjectToFormData(data, new FormData());
     return axiosClient(contentTypeFormData).post(url, formData);
   },
-  update(id: number, data: IPaymentAccountModel): Promise<IPaymentAccountModel> {
+  update(
+    id: string,
+    data: IPaymentAccountModel
+  ): Promise<IPaymentAccountModel> {
     const url = `/PaymentAccounts/${id}`;
     const formData = ConvertObjectToFormData(data, new FormData());
     return axiosClient(contentTypeFormData).put(url, formData);
   },
-  delete(id: number): Promise<void> {
+  delete(id: string): Promise<void> {
     const url = `/PaymentAccounts/${id}`;
     return axiosClient().delete(url);
   },
-  
 };
 
 export default paymentAccountApi;

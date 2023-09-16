@@ -2,7 +2,7 @@ import axios, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
 export const contentTypeFormData = "multipart/form-data";
 const axiosClient = (contentType: any = "application/json") => {
   const axiosClient = axios.create({
-    baseURL: "https://f3c0-14-174-14-215.ngrok-free.app/api",
+    baseURL: "https://2e8f-14-174-14-215.ngrok-freee.app/api",
     headers: {
       "Content-Type": contentType,
     },

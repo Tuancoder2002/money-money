@@ -57,10 +57,9 @@ function PaymentAccount() {
         };
 
         // Chuyển đổi accountId thành kiểu số
-        const accountIdNumber = parseInt(accountId, 10); // 10 là cơ số
 
         paymentAccountApi
-          .update(accountIdNumber, updatedViviData[editViviIndex])
+          .update(accountId, updatedViviData[editViviIndex])
           .then(() => {
             setViviData(updatedViviData);
             handleCancelEdit();
@@ -75,7 +74,13 @@ function PaymentAccount() {
       paymentAccountApi
         .create(newPaymentAccount)
         .then((res) => {
-          setViviData([...viviData, res]); // Thêm tài khoản mới vào danh sách
+          if (res.id == null) {
+            // thông báo lỗi create failed
+            return;
+          }
+          paymentAccountApi.getAll({}).then((resPaymentAccounts) => {
+            setViviData(resPaymentAccounts.data);
+          });
           handleCancelEdit(); // Đặt lại trạng thái chỉnh sửa
           alert("Tạo tài khoản thành công");
         })
@@ -88,111 +93,91 @@ function PaymentAccount() {
 
   const handleDeleteVivi = (index: number) => {
     const accountId = viviData[index]?.id;
-
-    if (accountId) {
-      const accountIdNumber = parseInt(accountId, 10); // Parse the accountId to a number
-
-      // Make an API call to delete the payment account on the server side
-      paymentAccountApi
-        .delete(accountIdNumber) // Use the parsed accountIdNumber
-        .then(() => {
-          // If the delete request is successful, update the viviData state
-          const updatedViviData = viviData.filter((_, i) => i !== index);
-          setViviData(updatedViviData);
-          alert("Xoá ví thành công");
-        })
-        .catch((error) => {
-          console.error("Lỗi khi xoá ví:", error); // Log the error to the console
-          alert("Lỗi khi xoá ví: " + error.message); // Show an alert with the error message
+    paymentAccountApi
+      .delete(accountId ?? "")
+      .then((res) => {
+        paymentAccountApi.getAll({}).then((resPaymentAccounts) => {
+          setViviData(resPaymentAccounts.data);
         });
-    }
+        alert("Đã xoá tk thành công");
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tạo tài khoản:", error);
+        alert("Lỗi khi tạo tài khoản");
+      });
   };
 
   return (
-    <div className="container mt-5">
-      <div>
-        <div className="row">
-          <div className="col-md-6 mx-auto">
-            <table className="table table-dark">
-              <thead>
-                <tr>
-                  <th colSpan={3}>Đang sử dụng</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td colSpan={3}>
-                    {!editMode ? (
-                      <button
-                        className="btn btn-primary"
-                        onClick={handleShowNewViviFields}
-                      >
-                        Thêm ví
-                      </button>
-                    ) : (
-                      <div>
-                        <div className="form-group">
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Tên ví"
-                            value={editViviName}
-                            onChange={(e) => setEditViviName(e.target.value)}
-                            style={{ width: "50%" }}
-                          />
-                        </div>
-                        <div className="form-group">
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Số tiền"
-                            value={editViviAmount}
-                            onChange={(e) => setEditViviAmount(e.target.value)}
-                            style={{ width: "50%" }}
-                          />
-                        </div>
-                        <button
-                          className="btn btn-success"
-                          onClick={handleSaveVivi}
-                        >
-                          Lưu
-                        </button>
-                        <button
-                          className="btn btn-danger"
-                          onClick={handleCancelEdit}
-                        >
-                          Hủy bỏ
-                        </button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-                {viviData.map((vivi, index) => (
-                  <tr key={vivi.id}>
-                    <td>{vivi.name}</td>
-                    <td>{vivi.initialMoney}</td>
-                    <td>
-                      <button
-                        className="btn btn-success"
-                        onClick={() => handleEditVivi(index)}
-                      >
-                        Sửa ví
-                      </button>
-                      <button
-                        className="btn btn-danger ms-4"
-                        onClick={() => handleDeleteVivi(index)}
-                      >
-                        Xoá ví
-                      </button>
-                      <button className="btn btn-primary ms-4">Chọn</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+    <div style={{ maxWidth: "400px" }}>
+      <table className="table table-dark">
+        <thead>
+          <tr>
+            <th colSpan={3}>Đang sử dụng</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colSpan={3}>
+              {!editMode ? (
+                <button
+                  className="btn btn-primary"
+                  onClick={handleShowNewViviFields}
+                >
+                  Thêm ví
+                </button>
+              ) : (
+                <div>
+                  <div className="form-group">
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Tên ví"
+                      value={editViviName}
+                      onChange={(e) => setEditViviName(e.target.value)}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Số tiền"
+                      value={editViviAmount}
+                      onChange={(e) => setEditViviAmount(e.target.value)}
+                    />
+                  </div>
+                  <button className="btn btn-success" onClick={handleSaveVivi}>
+                    Lưu
+                  </button>
+                  <button className="btn btn-danger" onClick={handleCancelEdit}>
+                    Hủy bỏ
+                  </button>
+                </div>
+              )}
+            </td>
+          </tr>
+          {viviData.map((vivi, index) => (
+            <tr key={vivi.id}>
+              <td>{vivi.name}</td>
+              <td>{vivi.initialMoney}</td>
+              <td>
+                <button
+                  className="btn btn-success"
+                  onClick={() => handleEditVivi(index)}
+                >
+                  Sửa ví
+                </button>
+                <button
+                  className="btn btn-danger ms-4"
+                  onClick={() => handleDeleteVivi(index)}
+                >
+                  Xoá ví
+                </button>
+                <button className="btn btn-primary ms-4">Chọn</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
