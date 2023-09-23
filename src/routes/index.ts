@@ -7,14 +7,13 @@ import Chart from "../page/Chart";
 const publicRoutes = [
   { path: "/", component: Login, layout: null },
   { path: "/register", component: Register, layout: null },
-  { path: "/home", component: Home },
-  { path: "/chart", component: Chart },
 
 ];
 
 // nhung router dang nhap moi xem duoc
 const privateRoutes = [
-  
+  { path: "/home", component: Home },
+  { path: "/chart", component: Chart },
 ];
 
-export { publicRoutes};
+export { publicRoutes, privateRoutes};

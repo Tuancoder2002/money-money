@@ -66,7 +66,7 @@ function Header() {
           boxShadow: "0 0 5px #ccc",
         }}
       >
-        <List onClick={toggleNavbar} size={24} className={cx("m-2", "icon",)} />
+        <List onClick={toggleNavbar} size={24} className={cx("m-2", "icon")} />
         <img
           src="logo192.png" // Thay thế bằng đường dẫn của hình ảnh avatar
           alt="Avatar"
@@ -141,7 +141,6 @@ function Header() {
       <Modal
         show={showModalWalletsUser}
         onHide={() => setShowModalWalletsUser(false)}
-
       >
         <Modal.Header closeButton>
           <Modal.Title>Quản lý ví</Modal.Title>

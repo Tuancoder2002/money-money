@@ -20,6 +20,8 @@ function Login() {
     // Xử lý đăng nhập thành công
     // Sau khi xác thực người dùng, gọi dispatch(loginSuccess()) để cập nhật trạng thái đăng nhập.
     dispatch(loginSuccess());
+    
+  
   }
   const history = useNavigate();
   
@@ -48,6 +50,7 @@ function Login() {
           formData.password === storedUser.password
         ) {
           window.alert("Đăng nhập thành công!");
+          handleLoginSuccess();
           history("/home");
         } else {
           alert("Email hoặc mật khẩu không đúng!");
