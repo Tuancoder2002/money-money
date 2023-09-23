@@ -1,6 +1,17 @@
+import { useEffect, useState } from "react";
 import { Tab, Tabs, Row, Col } from "react-bootstrap";
+import { ITransactionsModel } from "../../../models/Transactions/ITransactions";
+import transactionsApi from "../../../apis/transactionsApi";
 
 function Transactions() {
+  const [viviData, setViviData] = useState<ITransactionsModel[]>([]);
+
+  useEffect(() => {
+    transactionsApi.getAll({}).then((res) => {
+      setViviData(res.data);
+    });
+  }, []);
+  
   return (
     <div>
       {/* Hàng 1: Các tab */}

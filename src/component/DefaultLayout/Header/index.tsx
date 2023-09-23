@@ -1,7 +1,7 @@
 import classNames from "classnames/bind";
 import styles from "./Header.module.scss";
 import React, { useState } from "react";
-import { Form, Modal } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
 import AccountUser from "../AccountUser";
 import WalletsUser from "../WalletsUser";
 import { Link } from "react-router-dom";
@@ -66,9 +66,9 @@ function Header() {
           boxShadow: "0 0 5px #ccc",
         }}
       >
-        <List onClick={toggleNavbar} size={24} className={cx("m-2", "icon")} />
+        <List onClick={toggleNavbar} size={24} className={cx("m-2", "icon",)} />
         <img
-          src="https://scontent.fsgn2-6.fna.fbcdn.net/v/t39.30808-1/370268855_1695003577662262_8933963674553939351_n.jpg?stp=dst-jpg_p320x320&_nc_cat=110&ccb=1-7&_nc_sid=6e0f69&_nc_ohc=K1Gv9wIxRg8AX80NJ_r&_nc_oc=AQkV1tQ3XPMkq4s9aYSjnCo50j-HC1ejy7gX12_wV-NQx0Wp8k5386seA4TYj8c15iNe77X8y36UyYeSaL1Yai-5&_nc_ht=scontent.fsgn2-6.fna&oh=00_AfDkZhTAhnx1WUNWFkuJZHU6o2i0-ZFIbr-FvhNgqYU7hQ&oe=650826F4" // Thay thế bằng đường dẫn của hình ảnh avatar
+          src="logo192.png" // Thay thế bằng đường dẫn của hình ảnh avatar
           alt="Avatar"
           className={cx("avatar", "m-2")}
         />
@@ -141,6 +141,7 @@ function Header() {
       <Modal
         show={showModalWalletsUser}
         onHide={() => setShowModalWalletsUser(false)}
+
       >
         <Modal.Header closeButton>
           <Modal.Title>Quản lý ví</Modal.Title>

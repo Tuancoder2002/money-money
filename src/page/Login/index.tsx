@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
-import classNames from 'classnames/bind';
-import styles from './Login.module.scss';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import classNames from "classnames/bind";
+import styles from "./Login.module.scss";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from 'react-redux';
+import { loginSuccess } from '../../redux/actions';
+
 
 const cx = classNames.bind(styles);
 
@@ -11,11 +14,19 @@ interface FormData {
 }
 
 function Login() {
+  const dispatch = useDispatch();
+
+  function handleLoginSuccess() {
+    // Xử lý đăng nhập thành công
+    // Sau khi xác thực người dùng, gọi dispatch(loginSuccess()) để cập nhật trạng thái đăng nhập.
+    dispatch(loginSuccess());
+  }
   const history = useNavigate();
+  
 
   const [formData, setFormData] = useState<FormData>({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
 
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -29,83 +40,133 @@ function Login() {
   function handleLogin() {
     if (formData.email && formData.password) {
       // Lấy thông tin người dùng từ Local Storage
-      const storedUser = JSON.parse(localStorage.getItem('user') || '');
+      const storedUser = JSON.parse(localStorage.getItem("user") || "");
       if (storedUser) {
         // Kiểm tra thông tin đăng nhập
-        if (formData.email === storedUser.email && formData.password === storedUser.password) {
-          window.alert('Đăng nhập thành công!');
-          history('/home');
+        if (
+          formData.email === storedUser.email &&
+          formData.password === storedUser.password
+        ) {
+          window.alert("Đăng nhập thành công!");
+          history("/home");
         } else {
-          alert('Email hoặc mật khẩu không đúng!');
+          alert("Email hoặc mật khẩu không đúng!");
         }
       }
     } else {
-      alert('Vui lòng điền chính xác tất cả các trường bắt buộc');
+      alert("Vui lòng điền chính xác tất cả các trường bắt buộc");
     }
   }
-
+  // Kiểm tra trạng thái đăng nhập
+ 
   return (
     <div>
-      <section className={cx('vh-100')} style={{ backgroundColor: '#9A616D' }}>
-        <div className={cx('container', 'py-5', 'h-100')}>
-          <div className={cx('row', 'd-flex', 'justify-content-center', 'align-items-center', 'h-100')}>
-            <div className={cx('col', 'col-xl-10')}>
-              <div className={cx('card', cx('border-1'))}>
-                <div className={cx('row', 'g-0')}>
-                  <div className={cx('col-md-6', 'col-lg-5', 'd-none', 'd-md-block')}>
+      <section className={cx("vh-100")} style={{ backgroundColor: "#9A616D" }}>
+        <div className={cx("container", "py-5", "h-100")}>
+          <div
+            className={cx(
+              "row",
+              "d-flex",
+              "justify-content-center",
+              "align-items-center",
+              "h-100"
+            )}
+          >
+            <div className={cx("col", "col-xl-10")}>
+              <div className={cx("card", cx("border-1"))}>
+                <div className={cx("row", "g-0")}>
+                  <div
+                    className={cx(
+                      "col-md-6",
+                      "col-lg-5",
+                      "d-none",
+                      "d-md-block"
+                    )}
+                  >
                     <img
                       src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/img1.webp"
                       alt="login form"
-                      className={cx('img-fluid')}
-                      
+                      className={cx("img-fluid")}
                     />
                   </div>
-                  <div className={cx('col-md-6', 'col-lg-7', 'd-flex', 'align-items-center')}>
-                    <div className={cx('card-body', 'p-4', 'p-lg-5', 'text-black')}>
+                  <div
+                    className={cx(
+                      "col-md-6",
+                      "col-lg-7",
+                      "d-flex",
+                      "align-items-center"
+                    )}
+                  >
+                    <div
+                      className={cx("card-body", "p-4", "p-lg-5", "text-black")}
+                    >
                       <form>
-                        <div className={cx('d-flex', 'align-items-center', 'mb-3', 'pb-1')}>
+                        <div
+                          className={cx(
+                            "d-flex",
+                            "align-items-center",
+                            "mb-3",
+                            "pb-1"
+                          )}
+                        >
                           <i
-                            className={cx('fas', 'fa-cubes', 'fa-2x', 'me-3')}
-                            style={{ color: '#ff6219' }}
+                            className={cx("fas", "fa-cubes", "fa-2x", "me-3")}
+                            style={{ color: "#ff6219" }}
                           ></i>
-                          <span className={cx('h1', 'fw-bold', 'mb-0')}>Manage Money</span>
+                          <span className={cx("h1", "fw-bold", "mb-0")}>
+                            Manage Money
+                          </span>
                         </div>
 
-                        <h5 className={cx('fw-normal', 'mb-3', 'pb-3')} style={{ letterSpacing: '1px' }}>
+                        <h5
+                          className={cx("fw-normal", "mb-3", "pb-3")}
+                          style={{ letterSpacing: "1px" }}
+                        >
                           Sign into your account
                         </h5>
 
-                        <div className={cx('form-outline', 'mb-4')}>
+                        <div className={cx("form-outline", "mb-4")}>
                           <input
                             type="email"
                             id="form2Example17"
-                            className={cx('form-control', 'form-control-lg')}
+                            className={cx("form-control", "form-control-lg")}
                             name="email"
                             value={formData.email}
                             onChange={handleChange} // Lắng nghe sự thay đổi trên ô input email
                           />
-                          <label className={cx('form-label')} htmlFor="form2Example17">
+                          <label
+                            className={cx("form-label")}
+                            htmlFor="form2Example17"
+                          >
                             Email address
                           </label>
                         </div>
 
-                        <div className={cx('form-outline', 'mb-4')}>
+                        <div className={cx("form-outline", "mb-4")}>
                           <input
                             type="password"
                             id="form2Example27"
-                            className={cx('form-control', 'form-control-lg')}
+                            className={cx("form-control", "form-control-lg")}
                             name="password"
                             value={formData.password}
                             onChange={handleChange} // Lắng nghe sự thay đổi trên ô input password
                           />
-                          <label className={cx('form-label')} htmlFor="form2Example27">
+                          <label
+                            className={cx("form-label")}
+                            htmlFor="form2Example27"
+                          >
                             Password
                           </label>
                         </div>
 
-                        <div className={cx('pt-1', 'mb-4')}>
+                        <div className={cx("pt-1", "mb-4")}>
                           <button
-                            className={cx('btn', 'btn-dark', 'btn-lg', 'btn-block')}
+                            className={cx(
+                              "btn",
+                              "btn-dark",
+                              "btn-lg",
+                              "btn-block"
+                            )}
                             type="button"
                             onClick={handleLogin} // Gọi hàm xử lý đăng nhập khi nhấn nút Login
                           >
@@ -113,19 +174,22 @@ function Login() {
                           </button>
                         </div>
 
-                        <Link className={cx('small', 'text-muted')} to="/home">
+                        <Link className={cx("small", "text-muted")} to="/home">
                           Forgot password?
                         </Link>
-                        <p className={cx('mb-5', 'pb-lg-2')} style={{ color: '#393f81' }}>
-                          Don't have an account?{' '}
-                          <Link to="/register" style={{ color: '#393f81' }}>
+                        <p
+                          className={cx("mb-5", "pb-lg-2")}
+                          style={{ color: "#393f81" }}
+                        >
+                          Don't have an account?{" "}
+                          <Link to="/register" style={{ color: "#393f81" }}>
                             Register here
                           </Link>
                         </p>
-                        <Link to="#!" className={cx('small', 'text-muted')}>
+                        <Link to="#!" className={cx("small", "text-muted")}>
                           Terms of use.
                         </Link>
-                        <Link to="#!" className={cx('small', 'text-muted')}>
+                        <Link to="#!" className={cx("small", "text-muted")}>
                           Privacy policy
                         </Link>
                       </form>
