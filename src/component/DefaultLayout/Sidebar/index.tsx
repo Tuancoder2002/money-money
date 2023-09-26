@@ -92,7 +92,7 @@ function Sidebar() {
                   onClick={() => handleLiClick("/buget")}
                 >
                   <Link
-                    to="/chart"
+                    to="/wallet"
                     className="nav-link"
                     style={{
                       color: activeLink === "/buget" ? "#2DB84C" : "#0000008A",

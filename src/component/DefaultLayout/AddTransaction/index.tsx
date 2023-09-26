@@ -41,7 +41,7 @@ function AddTransaction() {
           size="lg"
           className="m-2"
         />
-        <Form.Control as="textarea" rows={3} />
+        <Form.Control as="textarea" rows={3} placeholder="Ghi chú"/>
       </div>
     </div>
   );

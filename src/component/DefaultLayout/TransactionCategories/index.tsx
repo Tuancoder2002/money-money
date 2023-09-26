@@ -13,10 +13,10 @@ function TransactionCategories() {
   }, []);
 
   return (
-    <div>
+    <div className="m-4">
       <div>
         <div className="d-flex align-items-center" style={{ fontSize: "12px" }}>
-          <span className="m-0 mr-auto">Chi tiêu hàng tháng</span>
+          <span className="mt-4 mr-auto">Chi tiêu hàng tháng</span>
         </div>
         <hr className="text-dark d-none d-sm-block" />
       </div>
@@ -40,8 +40,12 @@ function TransactionCategories() {
               </span>
             </div>
           </a>
+          
         </div>
+        
       ))}
+        <hr className="text-dark d-none d-sm-block" />
+
     </div>
   );
 }

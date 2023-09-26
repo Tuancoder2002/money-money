@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import classNames from "classnames/bind";
 import styles from "./Login.module.scss";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from 'react-redux';
-import { loginSuccess } from '../../redux/actions';
-
+import { useDispatch } from "react-redux";
+import { loginSuccess } from "../../redux/actions";
+import { EyeSlashFill, EyeFill } from "react-bootstrap-icons";
 
 const cx = classNames.bind(styles);
 
@@ -14,17 +14,19 @@ interface FormData {
 }
 
 function Login() {
+  const [showPassword, setShowPassword] = useState(false);
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
   const dispatch = useDispatch();
 
   function handleLoginSuccess() {
     // Xử lý đăng nhập thành công
     // Sau khi xác thực người dùng, gọi dispatch(loginSuccess()) để cập nhật trạng thái đăng nhập.
     dispatch(loginSuccess());
-    
-  
   }
   const history = useNavigate();
-  
 
   const [formData, setFormData] = useState<FormData>({
     email: "",
@@ -61,10 +63,10 @@ function Login() {
     }
   }
   // Kiểm tra trạng thái đăng nhập
- 
+
   return (
     <div>
-      <section className={cx("vh-100")} style={{ backgroundColor: "#9A616D" }}>
+      <section className={cx("vh-100")} style={{ backgroundColor: "#f3e0e2" }}>
         <div className={cx("container", "py-5", "h-100")}>
           <div
             className={cx(
@@ -87,7 +89,7 @@ function Login() {
                     )}
                   >
                     <img
-                      src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/img1.webp"
+                      src="picture-login.png"
                       alt="login form"
                       className={cx("img-fluid")}
                     />
@@ -117,7 +119,7 @@ function Login() {
                             style={{ color: "#ff6219" }}
                           ></i>
                           <span className={cx("h1", "fw-bold", "mb-0")}>
-                            Manage Money
+                            Login
                           </span>
                         </div>
 
@@ -147,26 +149,39 @@ function Login() {
 
                         <div className={cx("form-outline", "mb-4")}>
                           <input
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             id="form2Example27"
                             className={cx("form-control", "form-control-lg")}
                             name="password"
                             value={formData.password}
                             onChange={handleChange} // Lắng nghe sự thay đổi trên ô input password
                           />
-                          <label
-                            className={cx("form-label")}
-                            htmlFor="form2Example27"
-                          >
-                            Password
-                          </label>
+                          <div className="d-flex justify-content-between">
+                            <label
+                              className={cx("form-label")}
+                              htmlFor="form2Example27"
+                            >
+                              Password
+                            </label>
+                            <label
+                              className={cx("form-label")}
+                              htmlFor="form2Example27"
+                              onClick={toggleShowPassword}
+                            >
+                              {showPassword ? (
+                                <EyeFill size={20} />
+                              ) : (
+                                <EyeSlashFill size={20} />
+                              )}
+                            </label>
+                          </div>
                         </div>
 
                         <div className={cx("pt-1", "mb-4")}>
                           <button
                             className={cx(
                               "btn",
-                              "btn-dark",
+                              "btn-success",
                               "btn-lg",
                               "btn-block"
                             )}

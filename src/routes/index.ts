@@ -2,6 +2,8 @@ import Login from "../page/Login";
 import Register from "../page/Register";
 import Home from "../page/Home";
 import Chart from "../page/Chart";
+import Wallets from "../page/Wallets";
+import Categories from "../page/Categories";
 
 //nhung router khong can dang nhap van xem duoc
 const publicRoutes = [
@@ -14,6 +16,9 @@ const publicRoutes = [
 const privateRoutes = [
   { path: "/home", component: Home },
   { path: "/chart", component: Chart },
+  { path: "/wallet", component: Wallets },
+  { path: "/categories", component: Categories },
+
 ];
 
 export { publicRoutes, privateRoutes};

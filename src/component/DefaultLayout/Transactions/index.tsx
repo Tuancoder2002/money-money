@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Tab, Tabs, Row, Col } from "react-bootstrap";
 import { ITransactionsModel } from "../../../models/Transactions/ITransactions";
 import transactionsApi from "../../../apis/transactionsApi";
+import { Collapse, Nav, NavItem, NavLink, NavbarBrand } from "reactstrap";
+import { PersonFill } from "react-bootstrap-icons";
 
 function Transactions() {
   const [viviData, setViviData] = useState<ITransactionsModel[]>([]);
@@ -11,7 +13,11 @@ function Transactions() {
       setViviData(res.data);
     });
   }, []);
-  
+
+  const [collapsed, setCollapsed] = useState(true);
+
+  const toggleTransactions = () => setCollapsed(!collapsed);
+
   return (
     <div>
       {/* Hàng 1: Các tab */}
@@ -37,7 +43,10 @@ function Transactions() {
             >
               <Row>
                 <Col>
-                <ul className="list-unstyled m-2" style={{ fontSize: "14px" }}>
+                  <ul
+                    className="list-unstyled m-2"
+                    style={{ fontSize: "14px" }}
+                  >
                     <li>
                       <span className="p-1 d-flex justify-content-between">
                         <span>Tiền vào</span>
@@ -57,15 +66,16 @@ function Transactions() {
                       </span>
                     </li>
                     <li>
-                      <span className="p-1 d-flex justify-content-center text-success">
-                        <a
+                      <span
+                        className="p-1 d-flex justify-content-center text-success"
+                        onClick={toggleTransactions}
+                      >
+                        <span
                           className="nav-link"
-                          href="/"
-                          aria-current="page"
-                          style={{ color: "#2db84c", textDecoration: "none" }}
+                          style={{ color: "#2db84c", cursor: "pointer" }}
                         >
                           XEM BÁO CÁO CHO GIAI ĐOẠN NÀY
-                        </a>
+                        </span>
                       </span>
                     </li>
                   </ul>
@@ -85,7 +95,10 @@ function Transactions() {
             >
               <Row>
                 <Col>
-                  <ul className="list-unstyled m-2" style={{ fontSize: "14px" }}>
+                  <ul
+                    className="list-unstyled m-2"
+                    style={{ fontSize: "14px" }}
+                  >
                     <li>
                       <span className="p-1 d-flex justify-content-between">
                         <span>Tiền vào</span>
@@ -105,15 +118,16 @@ function Transactions() {
                       </span>
                     </li>
                     <li>
-                      <span className="p-1 d-flex justify-content-center text-success">
-                        <a
+                      <span
+                        className="p-1 d-flex justify-content-center text-success"
+                        onClick={toggleTransactions}
+                      >
+                        <span
                           className="nav-link"
-                          href="/"
-                          aria-current="page"
-                          style={{ color: "#2db84c", textDecoration: "none" }}
+                          style={{ color: "#2db84c", cursor: "pointer" }}
                         >
                           XEM BÁO CÁO CHO GIAI ĐOẠN NÀY
-                        </a>
+                        </span>
                       </span>
                     </li>
                   </ul>
@@ -133,7 +147,10 @@ function Transactions() {
             >
               <Row>
                 <Col>
-                <ul className="list-unstyled m-2" style={{ fontSize: "14px" }}>
+                  <ul
+                    className="list-unstyled m-2"
+                    style={{ fontSize: "14px" }}
+                  >
                     <li>
                       <span className="p-1 d-flex justify-content-between">
                         <span>Tiền vào</span>
@@ -153,15 +170,16 @@ function Transactions() {
                       </span>
                     </li>
                     <li>
-                      <span className="p-1 d-flex justify-content-center text-success">
-                        <a
+                      <span
+                        className="p-1 d-flex justify-content-center text-success"
+                        onClick={toggleTransactions}
+                      >
+                        <span
                           className="nav-link"
-                          href="/"
-                          aria-current="page"
-                          style={{ color: "#2db84c", textDecoration: "none" }}
+                          style={{ color: "#2db84c", cursor: "pointer" }}
                         >
                           XEM BÁO CÁO CHO GIAI ĐOẠN NÀY
-                        </a>
+                        </span>
                       </span>
                     </li>
                   </ul>
@@ -169,6 +187,103 @@ function Transactions() {
               </Row>
             </Tab>
           </Tabs>
+          <Collapse isOpen={!collapsed} navbar>
+            <Nav navbar>
+              <NavItem>
+                <NavLink style={{ cursor: "pointer" }}>
+                  <div className="d-flex justify-content-between">
+                    <div className="d-flex">
+                      <img
+                        src="https://cdn-icons-png.flaticon.com/512/6913/6913041.png" // Thay thế bằng đường dẫn của hình ảnh avatar
+                        alt="Avatar"
+                        style={{ width: "30px", height: "30px" }}
+                        className="m-1"
+                      />
+                      <NavbarBrand
+                        className="me-auto"
+                        style={{ fontSize: "12px" }}
+                      >
+                        Thứ Năm
+                        <div
+                          style={{
+                            fontSize: "13px",
+                            marginLeft: "1px",
+                          }}
+                        >
+                          Tháng Sáu 2019
+                        </div>
+                      </NavbarBrand>
+                    </div>
+                    <span style={{ color: "#000000", fontSize: "13px" }}>
+                      -200.000
+                    </span>
+                  </div>
+                </NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink style={{ cursor: "pointer" }}>
+                <div className="d-flex justify-content-between">
+                    <div className="d-flex">
+                      <img
+                        src="https://cdn-icons-png.flaticon.com/512/6913/6913041.png" // Thay thế bằng đường dẫn của hình ảnh avatar
+                        alt="Avatar"
+                        style={{ width: "30px", height: "30px" }}
+                        className="m-1"
+                      />
+                      <NavbarBrand
+                        className="me-auto"
+                        style={{ fontSize: "12px" }}
+                      >
+                        Thứ Năm
+                        <div
+                          style={{
+                            fontSize: "13px",
+                            marginLeft: "1px",
+                          }}
+                        >
+                          Tháng Sáu 2019
+                        </div>
+                      </NavbarBrand>
+                    </div>
+                    <span style={{ color: "#000000", fontSize: "13px" }}>
+                      -200.000
+                    </span>
+                  </div>
+                </NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink style={{ cursor: "pointer" }}>
+                <div className="d-flex justify-content-between">
+                    <div className="d-flex">
+                      <img
+                        src="https://cdn-icons-png.flaticon.com/512/6913/6913041.png" // Thay thế bằng đường dẫn của hình ảnh avatar
+                        alt="Avatar"
+                        style={{ width: "30px", height: "30px" }}
+                        className="m-1"
+                      />
+                      <NavbarBrand
+                        className="me-auto"
+                        style={{ fontSize: "12px" }}
+                      >
+                        Thứ Năm
+                        <div
+                          style={{
+                            fontSize: "13px",
+                            marginLeft: "1px",
+                          }}
+                        >
+                          Tháng Sáu 2019
+                        </div>
+                      </NavbarBrand>
+                    </div>
+                    <span style={{ color: "#000000", fontSize: "13px" }}>
+                      -200.000
+                    </span>
+                  </div>
+                </NavLink>
+              </NavItem>
+            </Nav>
+          </Collapse>
         </Col>
       </Row>
     </div>

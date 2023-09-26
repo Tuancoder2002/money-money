@@ -4,7 +4,7 @@ import Sidebar from "./Sidebar";
 
 function DefaultLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div>
+    <div className="">
       <Header />
       <div className="d-flex" style={{backgroundColor: "#dbdbdb"}}>
         <Sidebar />
