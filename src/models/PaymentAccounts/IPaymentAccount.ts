@@ -1,6 +1,6 @@
 export interface IPaymentAccountModel {
-  id?: string;
   name?: string;
   initialMoney?: number;
+  id?: string;
   icon?: string;
 }

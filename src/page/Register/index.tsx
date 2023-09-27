@@ -3,6 +3,8 @@ import classNames from "classnames/bind";
 import styles from "./Register.module.scss";
 import { EyeFill, EyeSlashFill } from "react-bootstrap-icons";
 import { Link } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const cx = classNames.bind(styles);
 
@@ -15,6 +17,7 @@ interface FormData {
 
 function Register() {
   const [showPassword, setShowPassword] = useState(false);
+
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -46,9 +49,16 @@ function Register() {
       // Ví dụ: kiểm tra thông tin hợp lệ và lưu vào Local Storage
       localStorage.setItem("user", JSON.stringify(formData));
       // Hiển thị cửa sổ thông báo khi đăng ký thành công
-      window.alert("Đăng ký thành công. Đăng nhập ngay!");
+      
+      toast.warning("Đăng ký thành công. Đăng nhập ngay!", {
+        position: toast.POSITION.TOP_RIGHT, // Vị trí hiển thị thông báo (có nhiều tùy chọn khác)
+      });
+      
     } else {
-      alert("Vui lòng điền chính xác tất cả các trường bắt buộc");
+      
+      toast.warning("Vui lòng điền chính xác tất cả các trường bắt buộc", {
+        position: toast.POSITION.TOP_RIGHT, // Vị trí hiển thị thông báo (có nhiều tùy chọn khác)
+      });
     }
   }
 
@@ -342,6 +352,7 @@ function Register() {
           </div>
         </div>
       </section>
+      <ToastContainer />
     </div>
   );
 }

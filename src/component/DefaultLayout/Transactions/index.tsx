@@ -3,7 +3,7 @@ import { Tab, Tabs, Row, Col } from "react-bootstrap";
 import { ITransactionsModel } from "../../../models/Transactions/ITransactions";
 import transactionsApi from "../../../apis/transactionsApi";
 import { Collapse, Nav, NavItem, NavLink, NavbarBrand } from "reactstrap";
-import { PersonFill } from "react-bootstrap-icons";
+
 
 function Transactions() {
   const [viviData, setViviData] = useState<ITransactionsModel[]>([]);
@@ -30,6 +30,8 @@ function Transactions() {
           }}
         >
           <Tabs defaultActiveKey={2} id="uncontrolled-tab-example">
+      {viviData.map((vivi, index) => (
+
             <Tab
               eventKey={1}
               title={
@@ -41,7 +43,7 @@ function Transactions() {
                 </span>
               }
             >
-              <Row>
+              <Row key={vivi.id}>
                 <Col>
                   <ul
                     className="list-unstyled m-2"
@@ -56,7 +58,7 @@ function Transactions() {
                     <li>
                       <span className="p-1 d-flex justify-content-between">
                         <span>Tiền ra</span>
-                        <span className="text-danger">300.000</span>
+                        <span className="text-danger">{vivi.amount}</span>
                       </span>
                     </li>
                     <li>
@@ -82,6 +84,7 @@ function Transactions() {
                 </Col>
               </Row>
             </Tab>
+             ))}
             <Tab
               eventKey={2}
               title={

@@ -5,6 +5,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../../redux/actions";
 import { EyeSlashFill, EyeFill } from "react-bootstrap-icons";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const cx = classNames.bind(styles);
 
@@ -51,15 +53,24 @@ function Login() {
           formData.email === storedUser.email &&
           formData.password === storedUser.password
         ) {
-          window.alert("Đăng nhập thành công!");
+          
+          toast.success("Đăng nhập thành công!", {
+            position: toast.POSITION.TOP_RIGHT, // Vị trí hiển thị thông báo (có nhiều tùy chọn khác)
+          });
           handleLoginSuccess();
           history("/home");
         } else {
-          alert("Email hoặc mật khẩu không đúng!");
+         
+          toast.error("Email hoặc mật khẩu không đúng!", {
+            position: toast.POSITION.TOP_RIGHT, // Vị trí hiển thị thông báo (có nhiều tùy chọn khác)
+          });
         }
       }
     } else {
-      alert("Vui lòng điền chính xác tất cả các trường bắt buộc");
+   
+      toast.warning("Vui lòng điền chính xác tất cả các trường bắt buộc.", {
+        position: toast.POSITION.TOP_RIGHT, // Vị trí hiển thị thông báo (có nhiều tùy chọn khác)
+      });
     }
   }
   // Kiểm tra trạng thái đăng nhập
@@ -219,6 +230,7 @@ function Login() {
           </div>
         </div>
       </section>
+      <ToastContainer />
     </div>
   );
 }

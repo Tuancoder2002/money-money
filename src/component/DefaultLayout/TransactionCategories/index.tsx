@@ -40,12 +40,9 @@ function TransactionCategories() {
               </span>
             </div>
           </a>
-          
         </div>
-        
       ))}
-        <hr className="text-dark d-none d-sm-block" />
-
+      <hr className="text-dark d-none d-sm-block" />
     </div>
   );
 }

@@ -5,7 +5,12 @@ import store from './redux'; // Import Redux store
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Kommunicate from "@kommunicate/kommunicate-chatbot-plugin";
 
+Kommunicate.init("295d4c607bf36984062c6f3d0ab83eaaa", {
+  automaticChatOpenOnNavigation: true,
+  popupWidget: true
+});
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

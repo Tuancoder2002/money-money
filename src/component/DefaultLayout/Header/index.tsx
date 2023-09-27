@@ -5,6 +5,7 @@ import { Modal } from "react-bootstrap";
 import AccountUser from "../AccountUser";
 import { Link } from "react-router-dom";
 import Button from "react-bootstrap/Button";
+import ListUser from "../ListUser"
 
 import {
   Collapse,
@@ -27,6 +28,9 @@ import {
 } from "react-bootstrap-icons";
 
 import AddTransaction from "../AddTransaction";
+import { IPaymentAccountModel } from "../../../models/PaymentAccounts/IPaymentAccount";
+// Định kiểu cho props của Header
+
 
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import { faCalendar, faChevronDown, faEye, faSearch } from '@fortawesome/free-solid-svg-icons';
@@ -34,11 +38,39 @@ import AddTransaction from "../AddTransaction";
 const cx = classNames.bind(styles);
 
 function Header() {
+  
+  const [showModalListUser, setShowModalListUser] = useState(false);
   const [showModalAccountUser, setShowModalAccountUser] = useState(false);
 
   const [showModalAddTransaction, setShowModalAddTransaction] = useState(false);
+  const [headerData, setHeaderData] = useState<any>({
+    // Khởi tạo dữ liệu ban đầu
+    imgVi:"logo192.png",
+    nameVi:"Chưa chọn ví",
+    cash: "Hãy chọn ví",
+    // Các trường dữ liệu khác của thẻ tiền mặt
+  });
+  const updateHeaderData = (vivi: IPaymentAccountModel) => {
+    // Tạo một bản sao của dữ liệu hiện tại
+    const updatedHeaderData = { ...headerData };
+    // Cập nhật các trường dữ liệu của thẻ tiền mặt dựa trên dữ liệu của ví được truyền vào
+    updatedHeaderData.cash = vivi.initialMoney; // Sử dụng trường initialMoney của ví
+    updatedHeaderData.nameVi = vivi.name;
+    updatedHeaderData.imgVi = vivi.icon;
+    // Các trường dữ liệu khác tương tự
   
+    // Cập nhật state để hiển thị dữ liệu mới
+    setHeaderData(updatedHeaderData);
+  };
+    
+  
+  const openModalListUser = () => {
+    setShowModalListUser(true);
+  };
 
+  const closeModalListUser = () => {
+    setShowModalListUser(false);
+  };
   const handleOpenModalAddTransaction = () => {
     setShowModalAddTransaction(true);
   };
@@ -53,12 +85,12 @@ function Header() {
   const toggleNavbar = () => setCollapsed(!collapsed);
 
   return (
-    <div>
+    <div className="wraper-header">
       <Navbar
-        color="light"
-        light
+        color="#fff"
+     
         style={{
-          backgroundColor: "#ffffff",
+          
           borderRadius: "1px",
           boxShadow: "0 0 5px #ccc",
         }}
@@ -66,13 +98,13 @@ function Header() {
       >
         <List onClick={toggleNavbar} size={24} className={cx("m-2", "icon")} />
         <img
-          src="logo192.png" // Thay thế bằng đường dẫn của hình ảnh avatar
+          src={headerData.imgVi} // Thay thế bằng đường dẫn của hình ảnh avatar
           alt="Avatar"
           className={cx("avatar", "m-2")}
         />
         <NavbarBrand className="me-auto" style={{ fontSize: "12px" }}>
-          Tiền mặt
-          <CaretDownFill size={10} className={cx("m-2", "icon")} />
+        {headerData.nameVi}
+          <CaretDownFill size={10} className={cx("m-2", "icon")} onClick={openModalListUser}/>
           <div
             style={{
               fontSize: "13px",
@@ -81,7 +113,7 @@ function Header() {
               fontWeight: "bold",
             }}
           >
-            5.000.000.00
+          {headerData.cash} {/* Hiển thị số tiền từ headerData */}
           </div>
         </NavbarBrand>
         <CalendarDateFill size={20} className={cx("m-2", "icon")} />
@@ -199,6 +231,9 @@ function Header() {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {showModalListUser && <ListUser closeModal={closeModalListUser} updateHeaderData={updateHeaderData} />}
+
     </div>
   );
 }

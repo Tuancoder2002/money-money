@@ -5,6 +5,7 @@ import DefaultLayout from "./component/DefaultLayout";
 import { Fragment } from "react";
 import PrivateRoute from "./PrivateRoute"; // Import PrivateRoute
 
+
 // Định nghĩa kiểu dữ liệu cho đối tượng route
 interface RouteType {
   path: string;
@@ -53,6 +54,7 @@ function App() {
           })}
         </Routes>
       </div>
+     
     </Router>
   );
 }
