@@ -17,11 +17,12 @@ interface PrivateRouteProps {
 
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   // Sử dụng kiểu dữ liệu RootState cho useSelector
-  const isAuthenticated = useSelector(
-    (state: RootState) => state.auth.isAuthenticated
-  );
+  // const isAuthenticated = useSelector(
+  //   (state: RootState) => state.auth.isAuthenticated
+  // );
+  // console.log("isAuthenticated", isAuthenticated);
 
-  return isAuthenticated ? <>{children}</> : <Navigate to="/" />;
+  return localStorage.getItem("token") ? <>{children}</> : <Navigate to="/" />;
 };
 
 export default PrivateRoute;

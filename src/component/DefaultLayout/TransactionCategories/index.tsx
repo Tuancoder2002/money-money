@@ -30,7 +30,7 @@ function TransactionCategories() {
           >
             <div className="d-flex align-items-center">
               <img
-                src="https://static.moneylover.me/img/icon/ic_category_foodndrink.png"
+                src={vivi.icon}
                 alt="Avatar"
                 className="rounded-circle m-0"
                 style={{ width: "30px", height: "30px" }}

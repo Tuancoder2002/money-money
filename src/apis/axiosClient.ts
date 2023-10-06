@@ -1,10 +1,12 @@
 import axios, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
 export const contentTypeFormData = "multipart/form-data";
 const axiosClient = (contentType: any = "application/json") => {
+  let tokenStr = localStorage.getItem("token");
   const axiosClient = axios.create({
     baseURL: "https://pika-outgoing-informally.ngrok-free.app/api",
     headers: {
       "Content-Type": contentType,
+      Authorization: `Bearer ${tokenStr}`,
     },
   });
 

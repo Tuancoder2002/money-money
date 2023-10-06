@@ -9,7 +9,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function ListWalletsUser() {
-  const notify = () => toast("Wow so easy!");
+  
   const [viviData, setViviData] = useState<IPaymentAccountModel[]>([]);
   const [editViviName, setEditViviName] = useState("");
   const [editViviAmount, setEditViviAmount] = useState("");

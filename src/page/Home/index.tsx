@@ -1,12 +1,23 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import classNames from "classnames/bind";
 import styles from "./Home.module.scss";
 import Transactions from "../../component/DefaultLayout/Transactions";
+import authApi from "../../apis/authApi";
 
 const cx = classNames.bind(styles);
 
 function Home() {
+  useEffect(() => {
+    authApi
+      .getUserInfo()
+      .then((res) => {
+        console.log(res.json());
+      })
+      .catch((errr) => {
+        console.error(errr);
+      });
+  }, []);
   return (
     // <div className={cx("app__container")}>
     //   <Header />
@@ -27,20 +38,18 @@ function Home() {
     //   </div>
     // </div>
     <div className="">
-
       <div className="container mt-5">
-          <div className="row">
-            <div className="col-md-6 mx-auto">
-              <table
-                className="table table-bordered mx-auto"
-                style={{ width: "450px" }}
-              >
-                <Transactions />
-              </table>
-            </div>
+        <div className="row">
+          <div className="col-md-6 mx-auto">
+            <table
+              className="table table-bordered mx-auto"
+              style={{ width: "450px" }}
+            >
+              <Transactions />
+            </table>
           </div>
         </div>
-    
+      </div>
     </div>
   );
 }
