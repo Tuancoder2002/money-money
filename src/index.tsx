@@ -1,11 +1,12 @@
+import Kommunicate from "@kommunicate/kommunicate-chatbot-plugin";
+import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux'; // Import Redux Provider
-import store from './redux'; // Import Redux store
+import { BrowserRouter } from "react-router-dom";
 import App from './App';
+import { store } from './redux/store'; // Import Redux store
 import reportWebVitals from './reportWebVitals';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import Kommunicate from "@kommunicate/kommunicate-chatbot-plugin";
 
 Kommunicate.init("295d4c607bf36984062c6f3d0ab83eaaa", {
   automaticChatOpenOnNavigation: true,
@@ -19,7 +20,8 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <Provider store={store}> {/* Bao bọc ứng dụng trong Redux Provider */}
-      <App />
+      <BrowserRouter >
+      <App /></BrowserRouter>
     </Provider>
   </React.StrictMode>
 );

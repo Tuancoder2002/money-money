@@ -1,13 +1,13 @@
-import React, { useEffect } from "react";
+import { FC, useEffect } from "react";
 
 import classNames from "classnames/bind";
-import styles from "./Home.module.scss";
-import Transactions from "../../component/DefaultLayout/Transactions";
 import authApi from "../../apis/authApi";
+import Transactions from "../../component/DefaultLayout/Transactions";
+import styles from "./Home.module.scss";
 
 const cx = classNames.bind(styles);
 
-function Home() {
+const Home:FC = () => {
   useEffect(() => {
     authApi
       .getUserInfo()

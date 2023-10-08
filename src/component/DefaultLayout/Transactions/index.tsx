@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { Tab, Tabs, Row, Col } from "react-bootstrap";
-import { ITransactionsModel } from "../../../models/Transactions/ITransactions";
-import transactionsApi from "../../../apis/transactionsApi";
+import { Col, Row, Tab, Tabs } from "react-bootstrap";
 import { Collapse, Nav, NavItem, NavLink, NavbarBrand } from "reactstrap";
+import transactionsApi from "../../../apis/transactionsApi";
+import { ITransactionsModel } from "../../../models/Transactions/ITransactions";
 
 function Transactions() {
   const [viviData, setViviData] = useState<ITransactionsModel[]>([]);
@@ -10,6 +10,8 @@ function Transactions() {
   useEffect(() => {
     transactionsApi.getAll({}).then((res) => {
       setViviData(res.data);
+    }).catch(err => {
+      
     });
   }, []);
 
