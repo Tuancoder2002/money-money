@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { EyeFill, EyeSlashFill } from "react-bootstrap-icons";
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import authApi from "../../apis/authApi";
 import { FormLoginData } from "../../models/Auths/FormLoginData";
@@ -19,24 +19,16 @@ function Login() {
     setShowPassword(!showPassword);
   };
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated
   );
   useEffect(() => {
-    console.log('isAuthenticated', isAuthenticated)
     if (isAuthenticated) {
-      toast.success("Đăng nhập thành công!", {
-        position: toast.POSITION.TOP_RIGHT,
-      });
       navigate("/");
-    } else {
-      toast.error("Email hoặc mật khẩu không đúng!", {
-        position: toast.POSITION.TOP_RIGHT, // Vị trí hiển thị thông báo (có nhiều tùy chọn khác)
-      });
     }
-  }, [isAuthenticated])
-
-  const dispatch = useAppDispatch();
+  }, [isAuthenticated, navigate])
 
   const [formData, setFormData] = useState<FormLoginData>({
     email: "",
@@ -219,7 +211,6 @@ function Login() {
           </div>
         </div>
       </section>
-      <ToastContainer />
     </div>
   );
 }

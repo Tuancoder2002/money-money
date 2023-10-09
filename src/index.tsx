@@ -4,6 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux'; // Import Redux Provider
 import { BrowserRouter } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 import App from './App';
 import { store } from './redux/store'; // Import Redux store
 import reportWebVitals from './reportWebVitals';
@@ -21,7 +22,9 @@ root.render(
   <React.StrictMode>
     <Provider store={store}> {/* Bao bọc ứng dụng trong Redux Provider */}
       <BrowserRouter >
-      <App /></BrowserRouter>
+        <ToastContainer />
+        <App />
+      </BrowserRouter>
     </Provider>
   </React.StrictMode>
 );

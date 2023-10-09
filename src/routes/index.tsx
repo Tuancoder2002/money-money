@@ -1,4 +1,4 @@
-import { RouteObject } from "react-router-dom";
+import { Navigate, RouteObject } from "react-router-dom";
 import DefaultLayout from "../component/DefaultLayout";
 import Categories from "../page/Categories";
 import Chart from "../page/Chart";
@@ -26,13 +26,14 @@ const privateRoutes = [
 
 const appRoutes: RouteObject[] = [
   { path: "/login", element: <Login /> },
-  { path: "/register", element: <Register /> }, {
-    path: "",
+  { path: "/logout", element: <Navigate to="/" replace />, },
+  { path: "/register", element: <Register /> },
+  {
     element: <DefaultLayout />,
     children: [
       { path: "/", element: <Home /> },
       {
-        path: "/home", element: <Home></Home>
+        path: "/home", element: <Home />
       },
       { path: "/chart", element: <Chart /> },
       { path: "/wallet", element: <Wallets /> },

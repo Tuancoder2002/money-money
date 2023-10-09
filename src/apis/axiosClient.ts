@@ -1,8 +1,8 @@
-import axios, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 export const contentTypeFormData = "multipart/form-data";
 const axiosClient = (contentType: any = "application/json") => {
   const axiosClient = axios.create({
-    baseURL: "https://pika-outgoing-informally.ngrok-free.app/api",
+    baseURL: process.env.REACT_APP_API_ENDPOINT,
     headers: {
       "Content-Type": contentType
     },
@@ -32,9 +32,9 @@ const axiosClient = (contentType: any = "application/json") => {
       console.log("axios 1", response.status)
       return response.data;
     },
-    function (error: any) {
+    function (error: AxiosError ) {
       console.log("axios error", error);
-      if (error.response.status == 401)
+      if (error.response?.status === 401 || error.request.responseURL.includes('auth'))
         window.location.href = '/login';
       // Any status codes that falls outside the range of 2xx cause this function to trigger
       // Do something with response error
