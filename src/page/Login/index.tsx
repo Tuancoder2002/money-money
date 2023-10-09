@@ -1,14 +1,15 @@
-import React, { useState } from "react";
 import classNames from "classnames/bind";
-import styles from "./Login.module.scss";
+import React, { useEffect, useState } from "react";
+import { EyeFill, EyeSlashFill } from "react-bootstrap-icons";
+import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { loginSuccess } from "../../redux/actions";
-import { EyeSlashFill, EyeFill } from "react-bootstrap-icons";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import authApi from "../../apis/authApi";
 import { FormLoginData } from "../../models/Auths/FormLoginData";
+import { useAppDispatch } from "../../redux/hooks";
+import { RootState } from "../../redux/store";
+import styles from "./Login.module.scss";
 
 const cx = classNames.bind(styles);
 
@@ -17,15 +18,25 @@ function Login() {
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
+  const navigate = useNavigate();
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated
+  );
+  useEffect(() => {
+    console.log('isAuthenticated', isAuthenticated)
+    if (isAuthenticated) {
+      toast.success("Đăng nhập thành công!", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+      navigate("/");
+    } else {
+      toast.error("Email hoặc mật khẩu không đúng!", {
+        position: toast.POSITION.TOP_RIGHT, // Vị trí hiển thị thông báo (có nhiều tùy chọn khác)
+      });
+    }
+  }, [isAuthenticated])
 
-  const dispatch = useDispatch();
-  const history = useNavigate();
-
-  function handleLoginSuccess() {
-    // Xử lý đăng nhập thành công
-    // Sau khi xác thực người dùng, gọi dispatch(loginSuccess()) để cập nhật trạng thái đăng nhập.
-    dispatch(loginSuccess());
-  }
+  const dispatch = useAppDispatch();
 
   const [formData, setFormData] = useState<FormLoginData>({
     email: "",
@@ -44,23 +55,7 @@ function Login() {
     if (formData.email && formData.password) {
       // Lấy thông tin người dùng từ Local Storage
       // Kiểm tra thông tin đăng nhập
-
-      authApi
-        .login(formData)
-        .then((response) => {
-          console.log(response);
-          toast.success("Đăng nhập thành công!", {
-            position: toast.POSITION.TOP_RIGHT, // Vị trí hiển thị thông báo (có nhiều tùy chọn khác)
-          });
-          localStorage.setItem("token", response);
-          handleLoginSuccess();
-          history("/home");
-        })
-        .catch((error) => {
-          toast.error("Email hoặc mật khẩu không đúng!", {
-            position: toast.POSITION.TOP_RIGHT, // Vị trí hiển thị thông báo (có nhiều tùy chọn khác)
-          });
-        });
+      dispatch(authApi.login(formData))
     } else {
       toast.warning("Vui lòng điền chính xác tất cả các trường bắt buộc.", {
         position: toast.POSITION.TOP_RIGHT, // Vị trí hiển thị thông báo (có nhiều tùy chọn khác)

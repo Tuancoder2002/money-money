@@ -1,25 +1,35 @@
-import { LOGIN_SUCCESS } from './actionTypes';
-
-// Định rõ kiểu dữ liệu cho action
-interface AuthAction {
-  type: string;
-  // Thêm các thuộc tính khác của action nếu cần
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import authApi from '../apis/authApi';
+interface AuthState {
+  isAuthenticated: boolean;
+  accessToken: string;
+}
+const initialState: AuthState = {
+  isAuthenticated: false,
+  accessToken: ''
 }
 
-const initialState = {
-  isAuthenticated: false,
-};
-
-const authReducer = (state = initialState, action: AuthAction) => {
-  switch (action.type) {
-    case LOGIN_SUCCESS:
-      return {
-        ...state,
-        isAuthenticated: true,
-      };
-    default:
-      return state;
+const authSlice = createSlice({
+  name: "authSlicer",
+  initialState: initialState,
+  reducers: {
+    loginSuccess: (state, action: PayloadAction<string>) => {
+      state.isAuthenticated = false;
+    }
+  },
+  extraReducers: {
+    [authApi.login.pending.type]: (state, action) => {
+      state.isAuthenticated = false;
+    },
+    [authApi.login.fulfilled.type]: (state, action) => {
+      localStorage.setItem('access_token', action.payload);
+      console.log('success', action);
+      state.isAuthenticated = true;
+    },
+    [authApi.login.rejected.type]: (state, action) => {
+      state.isAuthenticated = false;
+    }
   }
-};
+})
 
-export default authReducer;
+export default authSlice.reducer;
