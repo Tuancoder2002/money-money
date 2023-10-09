@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { toast } from "react-toastify";
 import authApi from '../apis/authApi';
 interface AuthState {
   isAuthenticated: boolean;
@@ -15,6 +16,9 @@ const authSlice = createSlice({
   reducers: {
     loginSuccess: (state, action: PayloadAction<string>) => {
       state.isAuthenticated = false;
+    },
+    logout: () => {
+      localStorage.clear();
     }
   },
   extraReducers: {
@@ -28,8 +32,13 @@ const authSlice = createSlice({
     },
     [authApi.login.rejected.type]: (state, action) => {
       state.isAuthenticated = false;
+    toast.error("Email hoặc mật khẩu không đúng!", {
+      position: toast.POSITION.TOP_RIGHT, // Vị trí hiển thị thông báo (có nhiều tùy chọn khác)
+    });
     }
   }
 })
+// Actions
+export const authActions = authSlice.actions;
 
 export default authSlice.reducer;

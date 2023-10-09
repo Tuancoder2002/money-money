@@ -2,12 +2,12 @@ import { useRoutes } from "react-router-dom";
 import { appRoutes } from "./routes";
 
 function App() {
-  var contentRoutes = useRoutes(appRoutes)
-  
+  let contentRoutes = useRoutes(appRoutes)
+
   return (
-      <div className="App">
-        {contentRoutes}
-      </div>
+    <div className="App">
+      {contentRoutes}
+    </div>
   );
 }
 
