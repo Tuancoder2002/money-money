@@ -5,6 +5,10 @@ import { EyeFill, EyeSlashFill } from "react-bootstrap-icons";
 import { Link } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import authApi from "../../apis/authApi"; // Import authApi để thực hiện yêu cầu đăng ký
+import FormRegisterData from "../../models/Auths/FormRegisterData";
+
+
 
 const cx = classNames.bind(styles);
 
@@ -15,14 +19,15 @@ interface FormData {
   confirmPassword: string;
 }
 
+
 function Register() {
   const [showPassword, setShowPassword] = useState(false);
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
-  const [formData, setFormData] = useState<FormData>({
-    name: "",
+  const [formData, setFormData] = useState<FormRegisterData>({
+    username: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -36,28 +41,31 @@ function Register() {
     }));
   }
 
-  function handleRegister() {
-    // Kiểm tra xem tất cả các trường thông tin cần thiết đã được điền đúng cách
+  async function handleRegister() {
     if (
-      formData.name &&
+      formData.username &&
       formData.email &&
       formData.password &&
       formData.confirmPassword &&
       formData.password === formData.confirmPassword
     ) {
-      // Ở đây, bạn có thể thực hiện xử lý lưu thông tin đăng ký
-      // Ví dụ: kiểm tra thông tin hợp lệ và lưu vào Local Storage
-      localStorage.setItem("user", JSON.stringify(formData));
-      // Hiển thị cửa sổ thông báo khi đăng ký thành công
-      
-      toast.warning("Đăng ký thành công. Đăng nhập ngay!", {
-        position: toast.POSITION.TOP_RIGHT, // Vị trí hiển thị thông báo (có nhiều tùy chọn khác)
-      });
-      
+      try {
+        // Gửi yêu cầu POST để đăng ký người dùng
+        await authApi.register(formData);
+
+        // Hiển thị thông báo khi đăng ký thành công
+        toast.success("Đăng ký thành công. Đăng nhập ngay!", {
+          position: toast.POSITION.TOP_RIGHT,
+        });
+      } catch (error) {
+        // Xử lý lỗi khi đăng ký thất bại
+        toast.error("Đăng ký thất bại. Vui lòng thử lại sau.", {
+          position: toast.POSITION.TOP_RIGHT,
+        });
+      }
     } else {
-      
       toast.warning("Vui lòng điền chính xác tất cả các trường bắt buộc", {
-        position: toast.POSITION.TOP_RIGHT, // Vị trí hiển thị thông báo (có nhiều tùy chọn khác)
+        position: toast.POSITION.TOP_RIGHT,
       });
     }
   }
@@ -129,13 +137,13 @@ function Register() {
                           >
                             <input
                               type="text"
-                              id="name"
+                              id="username"
                               className={cx("form-control")}
-                              name="name"
-                              value={formData.name}
+                              name="username"
+                              value={formData.username}
                               onChange={handleChange}
                             />
-                            <label className={cx("form-label")} htmlFor="name">
+                            <label className={cx("form-label")} htmlFor="username">
                               Your Name
                             </label>
                           </div>
