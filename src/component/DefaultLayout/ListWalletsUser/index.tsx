@@ -139,21 +139,38 @@ function ListWalletsUser() {
   return (
     <div>
       <div
-        className="rounded-1"
+        className=""
         style={{
-          backgroundColor: "#ffffff",
+          backgroundColor: "rgba(54, 19, 84, 0.8)",
           height: "100%",
-
+          borderRadius: "30px",
           maxWidth: "270px",
           boxShadow: "0 0 5px #ccc",
+          color: "#fff",
         }}
       >
-        <div className="m-2">
+        <div className="m-2 mx-auto mt-auto">
           {viviData.map((vivi, index) => (
             <div
               key={vivi.id}
-              className="mb-2 d-flex align-items-center"
+              className="mb-1 d-flex align-items-center"
               onClick={() => handleShowDetails(vivi)}
+              style={{
+                backgroundColor: "rgba(73, 231, 210, 0.8)",
+                borderRadius: "40px",
+                boxShadow: "0 0 5px #ccc",
+                height: "100%",
+                transition: "background-color 0.3s",
+                cursor: "pointer",
+              }}
+              onMouseOver={(e) =>
+                (e.currentTarget.style.backgroundColor =
+                  "rgba(73, 231, 210, 1)")
+              }
+              onMouseOut={(e) =>
+                (e.currentTarget.style.backgroundColor =
+                  "rgba(73, 231, 210, 0.8)")
+              }
             >
               <img
                 src={vivi.icon}
@@ -174,12 +191,13 @@ function ListWalletsUser() {
         </div>
       </div>
       <div
-        className="rounded-1"
+        className=""
         style={{
-          backgroundColor: "#ffffff",
+          backgroundColor: "rgba(54, 19, 84, 0.8)",
           height: "100%",
-
+          borderRadius: "30px",
           boxShadow: "0 0 5px #ccc",
+          color:"#fff"
         }}
       >
         <div className="m-2">
@@ -188,7 +206,7 @@ function ListWalletsUser() {
               <div className="d-flex align-items-center justify-content-between mb-4">
                 <div className="d-flex mt-2">
                   <Wallet2 className="m-1" size={25} />
-                  <span className="text-dark" style={{ fontSize: "20px" }}>
+                  <span className="text-white" style={{ fontSize: "20px" }}>
                     Thông tin chi tiết
                   </span>
                 </div>
@@ -207,7 +225,7 @@ function ListWalletsUser() {
                   </span>
                 </div>
               </div>
-              <hr className="text-dark" />
+              <hr className="text-white" />
               <div className="d-flex align-items-center mb-4">
                 <img
                   alt="Avatar"
@@ -235,11 +253,11 @@ function ListWalletsUser() {
               />
             </div>
           )}
-          <hr className="text-dark" />
+          <hr className="text-white" />
           <div>
             <span className="text-secondary">Thành viên</span>
           </div>
-          <hr className="text-dark" />
+          <hr className="text-white" />
           <Form>
             <div className="mb-4">
               <Form.Check
@@ -260,12 +278,14 @@ function ListWalletsUser() {
               </span>
             </div>
           </Form>
-          <hr className="text-dark" />
+          <hr className="text-white" />
           <div className="d-flex flex-column justify-content-center align-items-center">
-            <div className="mb-4">
+            <div className="mb-2">
               <span className="link-success">CHIA SẺ VÍ</span>
             </div>
+            <div className="mb-2">
             <span className="link-success">CHUYỂN TIỀN</span>
+            </div>
             <Button
               onClick={handleOpenModalAddWallet}
               variant="primary"

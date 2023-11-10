@@ -2,7 +2,7 @@ import Form from "react-bootstrap/Form";
 function AddWallets() {
   return (
     <div>
-      <div className="d-flex justify-content-around align-items-center">
+      {/* <div className="d-flex justify-content-around align-items-center">
         <Form.Select
           size="lg"
           aria-label="Default select example"
@@ -22,7 +22,7 @@ function AddWallets() {
           className="m-2"
         />
       </div>
-      <div className="d-flex justify-content-around align-items-center"></div>
+      <div className="d-flex justify-content-around align-items-center"></div> */}
     </div>
   );
 }

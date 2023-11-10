@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import AccountUser from "../AccountUser";
 import ListUser from "../ListUser";
 import styles from "./Header.module.scss";
+import Form from "react-bootstrap/Form";
 
 import {
   Building,
@@ -29,19 +30,22 @@ import {
 import { IPaymentAccountModel } from "../../../models/PaymentAccounts/IPaymentAccount";
 import { authActions } from "../../../redux/authReducer";
 import { useAppDispatch } from "../../../redux/hooks";
-import AddTransaction from "../AddTransaction";
+
 import classNames from "classnames";
+import { ITransactionsModel } from "../../../models/Transactions/ITransactions";
 
 const cx = classNames.bind(styles);
 
 function Header() {
+  const [viviData, setViviData] = useState<ITransactionsModel[]>([]);
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [showModalListUser, setShowModalListUser] = useState(false);
   const [showModalAccountUser, setShowModalAccountUser] = useState(false);
   const [showModalAddTransaction, setShowModalAddTransaction] = useState(false);
   const [headerData, setHeaderData] = useState<any>({
-    imgVi: "logo192.png",
+    imgVi: "icon.png",
     nameVi: "Chưa chọn ví",
     cash: "Hãy chọn ví",
   });
@@ -83,9 +87,13 @@ function Header() {
   return (
     <div className="wraper-header">
       <Navbar
-        color="#fff"
-        style={{ borderRadius: "1px", boxShadow: "0 0 5px #ccc" }}
-        className="d-flex"
+        style={{
+          borderRadius: "1px",
+          boxShadow: "0 0 3px #6074b3",
+          backgroundColor: "rgba(54, 19, 84, 0.8)",
+          color:"#fff"
+        }}
+        className="d-flex justify-content-evenly"
       >
         <List onClick={toggleNavbar} size={24} className={cx("m-2", "icon")} />
         <img
@@ -94,7 +102,10 @@ function Header() {
           className={cx("avatar", "m-2")}
           style={{ borderRadius: "50%", height: "35px", width: "35px" }}
         />
-        <NavbarBrand className="me-auto" style={{ fontSize: "12px" }}>
+        <NavbarBrand
+          className="me-auto"
+          style={{ fontSize: "12px", color: "#fff" }}
+        >
           {headerData.nameVi}
           <CaretDownFill
             size={10}
@@ -105,7 +116,7 @@ function Header() {
             style={{
               fontSize: "13px",
               marginLeft: "1px",
-              color: "#000000",
+              color: "#fff",
               fontWeight: "bold",
             }}
           >
@@ -125,25 +136,11 @@ function Header() {
         <Collapse isOpen={!collapsed} navbar>
           <Nav navbar>
             <NavItem>
-              <NavLink
-                onClick={handleOpenModalAccountUser}
-                style={{ cursor: "pointer" }}
-              >
-                <div className="d-flex justify-content-between">
-                  <div className="d-flex">
-                    <PersonFill size={25} className={cx("icon")} />
-                    <span>Quản lý tài khoản</span>
-                  </div>
-                  <ChevronRight size={20} className={cx("icon")} />
-                </div>
-              </NavLink>
-            </NavItem>
-            <NavItem>
               <NavLink style={{ cursor: "pointer" }}>
                 <Link to="/wallet" className="nav-link">
                   <div className="d-flex justify-content-between">
                     <div className="d-flex">
-                      <Wallet2 size={22} className={cx("icon", "mr-1")} />
+                      <Wallet2 size={20} className={cx("icon", "mr-1")} />
                       <span>Ví</span>
                     </div>
                     <ChevronRight size={20} className={cx("icon")} />
@@ -162,6 +159,20 @@ function Header() {
                     <ChevronRight size={20} className={cx("icon")} />
                   </div>
                 </Link>
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink
+                onClick={handleOpenModalAccountUser}
+                style={{ cursor: "pointer" }}
+              >
+                <div className="d-flex justify-content-between">
+                  <div className="d-flex">
+                    <PersonFill size={25} className={cx("icon")} />
+                    <span>Quản lý tài khoản</span>
+                  </div>
+                  <ChevronRight size={20} className={cx("icon")} />
+                </div>
               </NavLink>
             </NavItem>
           </Nav>
@@ -184,33 +195,6 @@ function Header() {
               Đăng xuất
             </Button>
           </Link>
-        </Modal.Footer>
-      </Modal>
-
-      <Modal
-        show={showModalAddTransaction}
-        onHide={() => setShowModalAddTransaction(false)}
-        size="lg"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Thêm giao dịch</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <AddTransaction />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => setShowModalAddTransaction(false)}
-          >
-            Huỷ
-          </Button>
-          <Button
-            variant="success"
-            onClick={() => setShowModalAddTransaction(false)}
-          >
-            Lưu
-          </Button>
         </Modal.Footer>
       </Modal>
 

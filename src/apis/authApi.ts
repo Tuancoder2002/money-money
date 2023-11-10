@@ -1,7 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { FormLoginData, IRegisterRequest } from "../models/Auths";
 import axiosClient from "./axiosClient";
-import FormRegisterData from "../models/Auths/FormRegisterData";
 
 const authApi = {
   login: createAsyncThunk("auth/login", async (formLoginData: FormLoginData): Promise<string> => {

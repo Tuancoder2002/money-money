@@ -14,6 +14,14 @@ const transactionsApi = {
     const formData = ConvertObjectToFormData(data, new FormData());
     return axiosClient(contentTypeFormData).post(url, formData);
   },
+  update(
+    id: string,
+    data: ITransactionsModel
+  ): Promise<ITransactionsModel> {
+    const url = `/Transactions/${id}`;
+    const formData = ConvertObjectToFormData(data, new FormData());
+    return axiosClient(contentTypeFormData).put(url, formData);
+  },
 };
 
 export default transactionsApi;

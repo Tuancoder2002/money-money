@@ -8,4 +8,5 @@ export interface ITransactionsModel {
   fromPaymentAccountName?: string;
   ategoryId?: string;
   categoryName?: string;
+  description?: string;
 }

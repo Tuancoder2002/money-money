@@ -108,6 +108,7 @@ function Login() {
                             name="password"
                             value={formData.password}
                             onChange={handleChange} // Lắng nghe sự thay đổi trên ô input password
+                            onKeyUp={(e) => e.key === 'Enter' && handleLogin()}
                           />
                           <div className="d-flex justify-content-between">
                             <label
