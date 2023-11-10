@@ -1,33 +1,26 @@
-import React, { useState } from "react";
 import classNames from "classnames/bind";
-import styles from "./Register.module.scss";
+import React, { useState } from "react";
 import { EyeFill, EyeSlashFill } from "react-bootstrap-icons";
 import { Link } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import authApi from "../../apis/authApi"; // Import authApi để thực hiện yêu cầu đăng ký
-import FormRegisterData from "../../models/Auths/FormRegisterData";
-
-
+import authApi from "../../apis/authApi";
+import { IRegisterRequest } from "../../models/Auths";
+import { useAppDispatch } from "../../redux/hooks";
+import styles from "./Register.module.scss";
 
 const cx = classNames.bind(styles);
-
-interface FormData {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
 
 
 function Register() {
   const [showPassword, setShowPassword] = useState(false);
+  const dispatch = useAppDispatch();
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
-  const [formData, setFormData] = useState<FormRegisterData>({
-    username: "",
+  const [formData, setFormData] = useState<IRegisterRequest>({
+    fullName: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -41,28 +34,22 @@ function Register() {
     }));
   }
 
-  async function handleRegister() {
+  function handleRegister(event: React.MouseEvent) {
+    event.preventDefault();
+    // Kiểm tra xem tất cả các trường thông tin cần thiết đã được điền đúng cách
     if (
-      formData.username &&
+      formData.fullName &&
       formData.email &&
       formData.password &&
       formData.confirmPassword &&
       formData.password === formData.confirmPassword
     ) {
-      try {
-        // Gửi yêu cầu POST để đăng ký người dùng
-        await authApi.register(formData);
+      // Ở đây, bạn có thể thực hiện xử lý lưu thông tin đăng ký
+      // Ví dụ: kiểm tra thông tin hợp lệ và lưu vào Local Storage
 
-        // Hiển thị thông báo khi đăng ký thành công
-        toast.success("Đăng ký thành công. Đăng nhập ngay!", {
-          position: toast.POSITION.TOP_RIGHT,
-        });
-      } catch (error) {
-        // Xử lý lỗi khi đăng ký thất bại
-        toast.error("Đăng ký thất bại. Vui lòng thử lại sau.", {
-          position: toast.POSITION.TOP_RIGHT,
-        });
-      }
+      dispatch(authApi.register(formData))
+      // Hiển thị cửa sổ thông báo khi đăng ký thành công
+
     } else {
       toast.warning("Vui lòng điền chính xác tất cả các trường bắt buộc", {
         position: toast.POSITION.TOP_RIGHT,
@@ -137,13 +124,13 @@ function Register() {
                           >
                             <input
                               type="text"
-                              id="username"
+                              id="fullName"
                               className={cx("form-control")}
-                              name="username"
-                              value={formData.username}
+                              name="fullName"
+                              value={formData.fullName}
                               onChange={handleChange}
                             />
-                            <label className={cx("form-label")} htmlFor="username">
+                            <label className={cx("form-label")} htmlFor="fullName">
                               Your Name
                             </label>
                           </div>
@@ -309,7 +296,7 @@ function Register() {
                           >
                             Register
                           </button>
-                         
+
                         </div>
                         <div
                           className={cx(
@@ -323,17 +310,17 @@ function Register() {
                           <label
                             className={cx("form-check-label")}
                             htmlFor={cx("form2Example3")}
-                            
+
                           >
                             Already have an account?{" "}
-                          <Link to="/" style={{ color: "#393f81" }}>
-                            Login here
-                          </Link>
+                            <Link to="/" style={{ color: "#393f81" }}>
+                              Login here
+                            </Link>
                           </label>
-                         
+
                         </div>
-                        
-                        
+
+
                       </form>
                     </div>
                     <div
@@ -358,10 +345,10 @@ function Register() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </div >
+      </section >
       <ToastContainer />
-    </div>
+    </div >
   );
 }
 

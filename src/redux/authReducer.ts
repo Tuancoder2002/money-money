@@ -32,9 +32,23 @@ const authSlice = createSlice({
     },
     [authApi.login.rejected.type]: (state, action) => {
       state.isAuthenticated = false;
-    toast.error("Email hoặc mật khẩu không đúng!", {
-      position: toast.POSITION.TOP_RIGHT, // Vị trí hiển thị thông báo (có nhiều tùy chọn khác)
-    });
+      toast.error("Email hoặc mật khẩu không đúng!", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+    },
+    [authApi.register.pending.type]: (state, action) => {
+
+    },
+    [authApi.register.fulfilled.type]: (state, action) => {
+      toast.success("Đăng ký thành công. Đăng nhập ngay!", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+    },
+    [authApi.register.rejected.type]: (state, action) => {
+      toast.error("Đăng ký thất bại", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+
     }
   }
 })
