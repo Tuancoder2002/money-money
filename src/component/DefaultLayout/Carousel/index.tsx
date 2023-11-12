@@ -19,9 +19,8 @@ function UncontrolledExample() {
           style={{ objectFit: 'cover', height: '100%', width: '100%',borderRadius: '30px', boxShadow: '0 0 5px #ccc',}}
         />
         <Carousel.Caption>
-          <h3>Ngạn ngữ Thổ Nhĩ Kỳ</h3>
-          <p>Người ta giàu vì biết lao động, Giàu hơn nữa vì biết tiết kiệm chi
-            tiêu.</p>
+          <h3>Bước 1</h3>
+          <p>Thêm Ví mới bằng cách click vào nút "Ví của tôi" ở bên góc trái màn hình.</p>
         </Carousel.Caption>
       </Carousel.Item>
       <Carousel.Item style={carouselItemStyle}>
@@ -32,8 +31,8 @@ function UncontrolledExample() {
           style={{ objectFit: 'cover', height: '100%', width: '100%',borderRadius: '30px', boxShadow: '0 0 5px #ccc',}}
         />
         <Carousel.Caption>
-          <h3>Ngạn ngữ Đức</h3>
-          <p>Tiết kiệm là một nghệ thuật, lớn hơn cả việc kiếm tiền.</p>
+          <h3>Bước 2</h3>
+          <p>Thêm giao dịch mới ở phía trên cùng góc phải màn hình.</p>
         </Carousel.Caption>
       </Carousel.Item>
       <Carousel.Item style={carouselItemStyle}>
@@ -44,8 +43,8 @@ function UncontrolledExample() {
           style={{ objectFit: 'cover', height: '100%', width: '100%',borderRadius: '30px', boxShadow: '0 0 5px #ccc',}}
         />
         <Carousel.Caption>
-          <h3>Warrent Buffett</h3>
-          <p>Đừng tiết kiệm những gì còn lại sau khi tiêu, mà hãy tiêu những gì còn lại khi tiết kiệm.</p>
+          <h3>Bước 3</h3>
+          <p>Kiểm soát chi tiêu của bạn ở mục "Sổ giao dịch".</p>
         </Carousel.Caption>
       </Carousel.Item>
       {/* Các Carousel.Item khác tương tự */}

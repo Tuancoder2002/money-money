@@ -10,19 +10,29 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../../redux/store";
 import { hideModal } from "../../../redux/modalSlice";
 import UncontrolledExample from "../Carousel";
+import { selectSelectedVivi } from "../../../redux/listUserSlice";
+import {
+  selectMoneyLastMonth,
+  selectMoneyNowMonth,
+  selectTotalMoney,
+  selectTransactions,
+  transactionActions,
+} from "../../../redux/transactionReducer";
+import { IFilterBodyRequest } from "../../../models/Bases/IFilterBodyRequest";
+import { useAppDispatch } from "../../../redux/hooks";
 
 const Transactions: React.FC = () => {
-  const [transactionData, setTransactionData] = useState<ITransactionsModel[]>(
-    []
-  );
+  const transactionData = useSelector(selectTransactions);
+  const moneyLastMonth = useSelector(selectMoneyLastMonth);
+  const moneyNowMonth = useSelector(selectMoneyNowMonth);
   const [selectedTransaction, setSelectedTransaction] =
     useState<ITransactionsModel | null>(null);
   const [viviData, setViviData] = useState<IPaymentAccountModel[]>([]);
-  const [showTransactionDetails, setShowTransactionDetails] = useState(false);
-  const handleShowDetails = (vivi: ITransactionsModel) => {
-    setSelectedTransaction(vivi);
-    setShowTransactionDetails(true);
-  };
+  // const [showTransactionDetails, setShowTransactionDetails] = useState(false);
+  // const handleShowDetails = (vivi: ITransactionsModel) => {
+  //   setSelectedTransaction(vivi);
+  //   setShowTransactionDetails(true);
+  // };
 
   const [showModalAddTransaction, setShowModalAddTransaction] = useState(false);
   const [modalUpdateTransaction, setModalUpdateTransaction] = useState(false);
@@ -32,35 +42,121 @@ const Transactions: React.FC = () => {
   const [editTransactionDate, setEditTransactionDate] = useState("");
   const [editTransactionDescription, setEditTransactionDescription] =
     useState("");
+  const [collapsedLast, setCollapsedLast] = useState(true);
+  const [collapsedNow, setCollapsedNow] = useState(true);
 
-  const handleEditTransactionDetails = (vivi: ITransactionsModel) => {
-    setFromPaymentAccountId(vivi.fromPaymentAccountName || "");
-    setModalUpdateTransaction(true);
+  const toggleTransactionsLast = () => setCollapsedLast(!collapsedLast);
+  const toggleTransactionsNow = () => setCollapsedNow(!collapsedNow);
+
+  const accountIdToFilter = useSelector(selectSelectedVivi);
+  const totalMoney = useSelector(selectTotalMoney);
+
+  useEffect(() => {
+    const { moneyLastMonthInByAccount, moneyLastMonthOutByAccount } =
+      transactionData.reduce(
+        (totals, vivi) => {
+          if (
+            vivi.fromPaymentAccountId === accountIdToFilter &&
+            vivi.transactionDate
+          ) {
+            const transactionDate = new Date(vivi.transactionDate);
+            const isSameMonth =
+              transactionDate.getMonth() + 1 === currentMonth - 1;
+            const isSameYear = transactionDate.getFullYear() === currentYear;
+
+            if (isSameMonth && isSameYear) {
+              const amount = Number(vivi.amount);
+              if (!isNaN(amount)) {
+                if (amount > 0) {
+                  totals.moneyLastMonthInByAccount += amount;
+                } else {
+                  totals.moneyLastMonthOutByAccount += amount;
+                }
+              }
+            }
+          }
+          return totals;
+        },
+        { moneyLastMonthInByAccount: 0, moneyLastMonthOutByAccount: 0 }
+      );
+    dispatch(
+      transactionActions.setMoneyLastMonth({
+        in: moneyLastMonthInByAccount,
+        out: moneyLastMonthOutByAccount,
+      })
+    );
+
+    const { moneyNowMonthInByAccount, moneyNowMonthOutByAccount } =
+      transactionData.reduce(
+        (totals, vivi) => {
+          if (
+            vivi.fromPaymentAccountId === accountIdToFilter &&
+            vivi.transactionDate
+          ) {
+            const transactionDate = new Date(vivi.transactionDate);
+            const isSameMonth = transactionDate.getMonth() + 1 === currentMonth;
+            const isSameYear = transactionDate.getFullYear() === currentYear;
+
+            if (isSameMonth && isSameYear) {
+              const amount = Number(vivi.amount);
+              if (!isNaN(amount)) {
+                if (amount > 0) {
+                  totals.moneyNowMonthInByAccount += amount;
+                } else {
+                  totals.moneyNowMonthOutByAccount += amount;
+                }
+              }
+            }
+          }
+          return totals;
+        },
+        { moneyNowMonthInByAccount: 0, moneyNowMonthOutByAccount: 0 }
+      );
+    dispatch(
+      transactionActions.setMoneyNowMonth({
+        in: moneyNowMonthInByAccount,
+        out: moneyNowMonthOutByAccount,
+      })
+    );
+    dispatch(
+      transactionActions.setTotalMoney(
+        initialMoney + moneyLastMonthInByAccount + moneyLastMonthOutByAccount
+      )
+    );
+  }, [accountIdToFilter]);
+
+  // const handleEditTransactionDetails = (vivi: ITransactionsModel) => {
+  //   setFromPaymentAccountId(vivi.fromPaymentAccountName || "");
+  //   setModalUpdateTransaction(true);
+  // };
+
+  const fetchTransactionData = async () => {
+    try {
+      const request: IFilterBodyRequest = {};
+      dispatch(transactionsApi.getAll(request))
+        .unwrap()
+        .then((response) => {
+          dispatch(transactionActions.setTransactions(response.data));
+        })
+        .catch((error) => {});
+      // const response = await transactionsApi.getAll({});
+      // setTransactionData(response.data);
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu", error);
+    }
   };
-
+  // Hàm này sẽ gọi API để lấy danh sách ví và cập nhật vào state khi component được render.
+  const fetchViviData = async () => {
+    try {
+      const response = await paymentAccountApi.getAll({});
+      setViviData(response.data);
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu ví:", error);
+    }
+  };
   useEffect(() => {
-    // Hàm này sẽ gọi API để lấy danh sách ví và cập nhật vào state khi component được render.
-    const fetchData = async () => {
-      try {
-        const response = await paymentAccountApi.getAll({});
-        setViviData(response.data);
-      } catch (error) {
-        console.error("Lỗi khi lấy dữ liệu ví:", error);
-      }
-    };
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await transactionsApi.getAll({});
-        setTransactionData(response.data);
-      } catch (error) {
-        console.error("Lỗi khi lấy dữ liệu", error);
-      }
-    };
-    fetchData();
+    fetchViviData();
+    fetchTransactionData();
   }, []);
 
   const handleAddTransactions = async () => {
@@ -75,7 +171,7 @@ const Transactions: React.FC = () => {
       const response = await transactionsApi.create(newVivi);
       if (response.id != null) {
         const updatedViviData = [...transactionData, response];
-        setTransactionData(updatedViviData);
+        dispatch(transactionActions.setTransactions(updatedViviData));
         setShowModalAddTransaction(false);
         toast.success("Thêm giao dịch thành công", {
           position: toast.POSITION.TOP_RIGHT,
@@ -107,7 +203,7 @@ const Transactions: React.FC = () => {
             selectedTransaction.id,
             updatedTransactionData[editedTransactionIndex]
           );
-          setTransactionData(updatedTransactionData);
+          dispatch(transactionActions.setTransactions(updatedTransactionData));
           setModalUpdateTransaction(false);
           toast.success("Thông tin ví đã được cập nhật thành công.", {
             position: toast.POSITION.TOP_RIGHT,
@@ -125,60 +221,22 @@ const Transactions: React.FC = () => {
     }
   };
 
-  const [collapsedLast, setCollapsedLast] = useState(true);
-  const [collapsedNow, setCollapsedNow] = useState(true);
-
-  const toggleTransactionsLast = () => setCollapsedLast(!collapsedLast);
-  const toggleTransactionsNow = () => setCollapsedNow(!collapsedNow);
-  
-  const accountIdToFilter = useSelector(
-    (state: RootState) => state.listUser.selectedVivi?.id
-  );
-  console.log('accountIdToFilter:', accountIdToFilter);
+  console.log("accountIdToFilter:", accountIdToFilter);
   // Lấy tháng và năm hiện tại
-  const currentMonth = new Date().getMonth() + 1; // Tháng bắt đầu từ 0
+  const currentMonth = new Date().getMonth() + 1; // T``háng bắt đầu từ 0
   const currentYear = new Date().getFullYear();
-
-  const { totalMoneyInByAccount, totalMoneyOutByAccount } =
-    transactionData.reduce(
-      (totals, vivi) => {
-        if (
-          vivi.fromPaymentAccountId === accountIdToFilter &&
-          vivi.transactionDate
-        ) {
-          const transactionDate = new Date(vivi.transactionDate);
-          const isSameMonth =
-            transactionDate.getMonth() + 1 === currentMonth - 1;
-          const isSameYear = transactionDate.getFullYear() === currentYear;
-
-          if (isSameMonth && isSameYear) {
-            const amount = Number(vivi.amount);
-            if (!isNaN(amount)) {
-              if (amount > 0) {
-                totals.totalMoneyInByAccount += amount;
-              } else {
-                totals.totalMoneyOutByAccount += amount;
-              }
-            }
-          }
-        }
-        return totals;
-      },
-      { totalMoneyInByAccount: 0, totalMoneyOutByAccount: 0 }
-    );
 
   const isModalVisible = useSelector(
     (state: RootState) => state.modal.isModalVisible
   );
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const handleCloseModal = () => {
     dispatch(hideModal());
   };
   const initialMoney = useSelector(
-    (state: RootState) => state.listUser.selectedVivi?.initialMoney
+    (state: RootState) => state.listUser.selectedVivi?.initialMoney ?? 0
   );
-  console.log("Initial Money:", initialMoney);
 
   return (
     <div>
@@ -215,15 +273,9 @@ const Transactions: React.FC = () => {
                         >
                           <li>
                             <span className="p-1 d-flex justify-content-between">
-                              <span>Số tiền ban đầu:</span>
-                              <span className="">{initialMoney ?? 0}</span>
-                            </span>
-                          </li>
-                          <li>
-                            <span className="p-1 d-flex justify-content-between">
                               <span>Tiền vào:</span>
                               <span className="text-success">
-                                + {initialMoney ? totalMoneyInByAccount : 0}
+                                + {initialMoney ? moneyLastMonth.in : 0}
                               </span>
                             </span>
                           </li>
@@ -231,17 +283,18 @@ const Transactions: React.FC = () => {
                             <span className="p-1 d-flex justify-content-between">
                               <span>Tiền ra:</span>
                               <span className="text-danger">
-                                {initialMoney ? totalMoneyOutByAccount : 0}
+                                {initialMoney ? moneyLastMonth.out : 0}
                               </span>
                             </span>
                           </li>
                           <li>
                             <span className="p-1 d-flex justify-content-between">
-                              <span>Số tiền còn lại:</span>
+                              <span>Tổng tiền của tháng:</span>
                               <span className="" style={{ color: "#fff" }}>
-                                {(initialMoney ? totalMoneyInByAccount : 0) +
-                                  (initialMoney ? totalMoneyOutByAccount : 0) +
-                                  (initialMoney ?? 0)}
+                                {/* {(initialMoney ? moneyLastMonthInByAccount : 0) +
+                                  (initialMoney ? moneyLastMonthOutByAccount : 0) +
+                                  (initialMoney ?? 0)} */}
+                                {totalMoney}
                               </span>
                             </span>
                           </li>
@@ -284,38 +337,44 @@ const Transactions: React.FC = () => {
                         >
                           <li>
                             <span className="p-1 d-flex justify-content-between">
-                              <span>Số tiền ban đầu:</span>
-                              <span className="">{initialMoney ?? 0}</span>
+                              <span>Tiền vào:</span>
+                              <span className="text-success">
+                                + {initialMoney ? moneyNowMonth.in : 0}
+                              </span>
                             </span>
                           </li>
                           <li>
                             <span className="p-1 d-flex justify-content-between">
-                              <span>Tiền vào</span>
-                              <span className="text-primary">3.000.000</span>
+                              <span>Tiền ra:</span>
+                              <span className="text-danger">
+                                {initialMoney ? moneyNowMonth.out : 0}
+                              </span>
                             </span>
                           </li>
                           <li>
                             <span className="p-1 d-flex justify-content-between">
-                              <span>Tiền ra</span>
-                              <span className="text-danger">300.000</span>
-                            </span>
-                          </li>
-                          <li>
-                            <span className="p-1 d-flex justify-content-between">
-                              <span></span>
+                              <span>Tổng tiền của tháng:</span>
                               <span className="" style={{ color: "#fff" }}>
-                                + 2.700.000
+                                {/* {(initialMoney ? moneyNowMonthInByAccount : 0) +
+                                  (initialMoney ? moneyNowMonthOutByAccount : 0) +
+                                  (initialMoney ?? 0)} */}
+                                {totalMoney +
+                                  moneyNowMonth.in +
+                                  moneyNowMonth.out}
                               </span>
                             </span>
                           </li>
                           <li>
                             <span
                               className="p-1 d-flex justify-content-center text-success"
-                              onClick={toggleTransactionsNow}
+                              onClick={toggleTransactionsLast}
                             >
                               <span
                                 className="nav-link"
-                                style={{ color: "#2db84c", cursor: "pointer" }}
+                                style={{
+                                  color: "#2db84c",
+                                  cursor: "pointer",
+                                }}
                               >
                                 XEM BÁO CÁO CHO GIAI ĐOẠN NÀY
                               </span>
@@ -487,7 +546,7 @@ const Transactions: React.FC = () => {
           </div>
         </div>
       </div>
-      <UncontrolledExample/>
+      <UncontrolledExample />
       {/* ******************************************************************************************************** */}
       <Modal show={isModalVisible} onHide={() => handleCloseModal()} size="lg">
         <Modal.Header closeButton>

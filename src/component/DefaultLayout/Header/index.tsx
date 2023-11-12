@@ -5,8 +5,11 @@ import { Link, useNavigate } from "react-router-dom";
 import AccountUser from "../AccountUser";
 import ListUser from "../ListUser";
 import styles from "./Header.module.scss";
-import Form from "react-bootstrap/Form";
 import { useDispatch } from "react-redux";
+import { vi } from "date-fns/locale";
+import { format } from "date-fns";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 import {
   Building,
@@ -17,7 +20,6 @@ import {
   List,
   PersonFill,
   Search,
-  Wallet2,
 } from "react-bootstrap-icons";
 import {
   Collapse,
@@ -30,7 +32,7 @@ import {
 
 import { IPaymentAccountModel } from "../../../models/PaymentAccounts/IPaymentAccount";
 import { authActions } from "../../../redux/authReducer";
-import { useAppDispatch } from "../../../redux/hooks";
+// import { useAppDispatch } from "../../../redux/hooks";
 
 import classNames from "classnames";
 import { ITransactionsModel } from "../../../models/Transactions/ITransactions";
@@ -39,6 +41,8 @@ import { showModal } from "../../../redux/modalSlice";
 const cx = classNames.bind(styles);
 
 function Header() {
+  const [startDate, setStartDate] = useState<Date | null>(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [viviData, setViviData] = useState<ITransactionsModel[]>([]);
   const navigate = useNavigate();
   const [showModalListUser, setShowModalListUser] = useState(false);
@@ -49,6 +53,16 @@ function Header() {
     nameVi: "Chưa chọn ví",
     cash: "Hãy chọn ví",
   });
+  const handleIconClick = () => {
+    setShowDatePicker(true);
+  };
+
+  const handleDatePickerChange = (date: Date | null) => {
+    if (date) {
+      setStartDate(date);
+    }
+    setShowDatePicker(false);
+  };
   const updateHeaderData = (vivi: IPaymentAccountModel) => {
     const updatedHeaderData = { ...headerData };
     updatedHeaderData.cash = vivi.initialMoney;
@@ -129,31 +143,36 @@ function Header() {
             {headerData.cash}
           </div>
         </NavbarBrand>
-        <CalendarDateFill size={20} className={cx("m-2", "icon")} />
+        <CalendarDateFill
+          size={20}
+          className={cx("m-2", "icon")}
+          onClick={() => setShowDatePicker(true)}
+        />
+        {showDatePicker && (
+          <div className="calendar-container">
+            <DatePicker
+              inline
+              selected={startDate}
+              onChange={(date: Date | null) => setStartDate(date)}
+              dateFormat="dd/MM/yyyy"
+              showYearDropdown
+              showMonthDropdown
+            />
+            <div className="current-date">
+              {startDate && format(startDate, "dd/MM/yyyy", { locale: vi })}
+            </div>
+            <button onClick={() => setShowDatePicker(false)}>Đóng</button>
+          </div>
+        )}
+
         <EyeFill size={20} className={cx("m-2", "icon")} />
+
         <Search size={20} className={cx("m-2", "icon")} />
         <Button onClick={handleButtonClick} variant="success" className="m-2">
           Thêm giao dịch
         </Button>
         <Collapse isOpen={!collapsed} navbar>
           <Nav navbar>
-            <NavItem>
-              <NavLink style={{ cursor: "pointer" }}>
-                <Link
-                  to="/wallet"
-                  className="nav-link"
-                  style={{ color: "#fff" }}
-                >
-                  <div className="d-flex justify-content-between">
-                    <div className="d-flex">
-                      <Wallet2 size={20} className={cx("icon", "mr-1")} />
-                      <span>Ví</span>
-                    </div>
-                    <ChevronRight size={20} className={cx("icon")} />
-                  </div>
-                </Link>
-              </NavLink>
-            </NavItem>
             <NavItem>
               <NavLink style={{ cursor: "pointer" }}>
                 <Link

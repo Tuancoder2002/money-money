@@ -7,6 +7,8 @@ import {
   Calendar,
   Journals,
   ClipboardPulse,
+  ChevronRight,
+  Wallet2,
 } from "react-bootstrap-icons";
 import { Link } from "react-router-dom";
 import { useState } from "react";
@@ -26,7 +28,7 @@ function Sidebar() {
   return (
     <div
       className={cx("wraper-sidebar")}
-      style={{ backgroundColor: "rgba(54, 19, 84, 0.8)"}}
+      style={{ backgroundColor: "rgba(54, 19, 84, 0.8)" }}
     >
       <div className={cx("")}>
         <div className={cx("")}>
@@ -75,6 +77,33 @@ function Sidebar() {
                       <Calendar size={20} className={cx("m-2", "icon")} />
                       <span className={cx("d-none", "d-sm-inline")}>
                         Sổ giao dịch
+                      </span>
+                    </span>
+                  </Link>
+                </li>
+                <li
+                  className={cx(
+                    "nav-item",
+                    "my-sm-1",
+                    "my-2",
+                    "small-text",
+                    "mb-4",
+                    "mt-4"
+                  )}
+                  onClick={() => handleLiClick("/wallet")}
+                >
+                  <Link
+                    to="/wallet"
+                    className="nav-link"
+                    style={{
+                      color: activeLink === "/wallet" ? "#2DB84C" : "#fff",
+                    }}
+                  >
+                    <span className={cx("icon-below-text")}>
+                      <Wallet2 size={20} className={cx("m-2", "icon")} />
+
+                      <span className={cx("d-none", "d-sm-inline")}>
+                        Ví của tôi
                       </span>
                     </span>
                   </Link>
@@ -145,9 +174,7 @@ function Sidebar() {
                     className="nav-link"
                     style={{
                       color:
-                        activeLink === "/QuestionCircle"
-                          ? "#2DB84C"
-                          : "#fff",
+                        activeLink === "/QuestionCircle" ? "#2DB84C" : "#fff",
                     }}
                   >
                     <span className={cx("icon-below-text")}>
