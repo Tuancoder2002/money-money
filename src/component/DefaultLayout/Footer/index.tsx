@@ -13,8 +13,7 @@ const Footer = (): JSX.Element => (
         <div className="col-md-6 col-xs-12 mt-md-0 mt-3">
           <h5 className="text-uppercase">MANAGE MONEY</h5>
           <p>
-            Người ta giàu vì biết lao động, Giàu hơn nữa vì biết tiết kiệm chi
-            tiêu.
+          "Định hình Tương lai, Kiểm soát Hiện tại: Manage Money - Nền tảng quản lý tài chính giúp bạn xây dựng tương lai mà bạn muốn."
           </p>
         </div>
 
@@ -26,10 +25,10 @@ const Footer = (): JSX.Element => (
           </h5>
           <ul className="list-unstyled" style={{ fontSize: "12px" }}>
             <li>
-              <a href="#!"className="text-decoration-none"style={{ color: "#757575 " }}>Trung tâm trợ giúp</a>
+              <a href="https://chat.openai.com/"className="text-decoration-none"style={{ color: "#757575 " }}>Trung tâm trợ giúp</a>
             </li>
             <li>
-              <a href="#!"className="text-decoration-none"style={{ color: "#757575 " }}>Hỗ trợ qua mail</a>
+              <a href="https://mail.google.com/mail/u/0/#inbox?compose=new"className="text-decoration-none"style={{ color: "#757575 " }}>Hỗ trợ qua mail</a>
             </li>
           </ul>
         </div>
@@ -40,10 +39,10 @@ const Footer = (): JSX.Element => (
           </h5>
           <ul className="list-unstyled" style={{ fontSize: "12px" }}>
             <li>
-              <a href="#!" className="text-decoration-none" style={{ color: "#757575 " }}>Facebook</a>
+              <a href="https://www.facebook.com/tuancodedao" className="text-decoration-none" style={{ color: "#757575 " }}>Facebook</a>
             </li>
             <li>
-              <a href="#!"className="text-decoration-none" style={{ color: "#757575 " }}>Github</a>
+              <a href="https://github.com/Tuancoder2002"className="text-decoration-none" style={{ color: "#757575 " }}>Github</a>
             </li>
           </ul>
         </div>

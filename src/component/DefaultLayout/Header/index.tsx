@@ -6,6 +6,7 @@ import AccountUser from "../AccountUser";
 import ListUser from "../ListUser";
 import styles from "./Header.module.scss";
 import Form from "react-bootstrap/Form";
+import { useDispatch } from "react-redux";
 
 import {
   Building,
@@ -33,13 +34,12 @@ import { useAppDispatch } from "../../../redux/hooks";
 
 import classNames from "classnames";
 import { ITransactionsModel } from "../../../models/Transactions/ITransactions";
+import { showModal } from "../../../redux/modalSlice";
 
 const cx = classNames.bind(styles);
 
 function Header() {
   const [viviData, setViviData] = useState<ITransactionsModel[]>([]);
-
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [showModalListUser, setShowModalListUser] = useState(false);
   const [showModalAccountUser, setShowModalAccountUser] = useState(false);
@@ -84,6 +84,12 @@ function Header() {
     navigate("/logout");
   };
 
+  const dispatch = useDispatch();
+
+  const handleButtonClick = () => {
+    dispatch(showModal());
+  };
+
   return (
     <div className="wraper-header">
       <Navbar
@@ -91,7 +97,7 @@ function Header() {
           borderRadius: "1px",
           boxShadow: "0 0 3px #6074b3",
           backgroundColor: "rgba(54, 19, 84, 0.8)",
-          color:"#fff"
+          color: "#fff",
         }}
         className="d-flex justify-content-evenly"
       >
@@ -126,18 +132,18 @@ function Header() {
         <CalendarDateFill size={20} className={cx("m-2", "icon")} />
         <EyeFill size={20} className={cx("m-2", "icon")} />
         <Search size={20} className={cx("m-2", "icon")} />
-        <Button
-          onClick={handleOpenModalAddTransaction}
-          variant="success"
-          className="m-2"
-        >
+        <Button onClick={handleButtonClick} variant="success" className="m-2">
           Thêm giao dịch
         </Button>
         <Collapse isOpen={!collapsed} navbar>
           <Nav navbar>
             <NavItem>
               <NavLink style={{ cursor: "pointer" }}>
-                <Link to="/wallet" className="nav-link">
+                <Link
+                  to="/wallet"
+                  className="nav-link"
+                  style={{ color: "#fff" }}
+                >
                   <div className="d-flex justify-content-between">
                     <div className="d-flex">
                       <Wallet2 size={20} className={cx("icon", "mr-1")} />
@@ -150,7 +156,11 @@ function Header() {
             </NavItem>
             <NavItem>
               <NavLink style={{ cursor: "pointer" }}>
-                <Link to="/categories" className="nav-link">
+                <Link
+                  to="/categories"
+                  className="nav-link"
+                  style={{ color: "#fff" }}
+                >
                   <div className="d-flex justify-content-between">
                     <div className="d-flex">
                       <Building size={22} className={cx("icon")} />
@@ -166,7 +176,10 @@ function Header() {
                 onClick={handleOpenModalAccountUser}
                 style={{ cursor: "pointer" }}
               >
-                <div className="d-flex justify-content-between">
+                <div
+                  className="d-flex justify-content-between"
+                  style={{ color: "#fff" }}
+                >
                   <div className="d-flex">
                     <PersonFill size={25} className={cx("icon")} />
                     <span>Quản lý tài khoản</span>

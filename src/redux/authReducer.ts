@@ -5,11 +5,17 @@ import { RootState } from "./store";
 interface AuthState {
   isAuthenticated: boolean;
   accessToken: string;
+  user: UserInfo | null;
 }
 const initialState: AuthState = {
   isAuthenticated: false,
   accessToken: "",
+  user: null,
 };
+interface UserInfo {
+  name: string;
+  email: string;
+}
 
 const authSlice = createSlice({
   name: "authSlicer",
@@ -55,6 +61,11 @@ const authSlice = createSlice({
 });
 // Actions
 export const authActions = authSlice.actions;
+
+export const selectUser = createSelector(
+  [(state: RootState) => state.auth.user],
+  (user) => user
+);
 
 export const selectisAuthenticated = createSelector(
   [(state: RootState) => state.auth.isAuthenticated],

@@ -6,9 +6,12 @@ import { ITransactionsModel } from "../../../models/Transactions/ITransactions";
 import { toast } from "react-toastify";
 import { IPaymentAccountModel } from "../../../models/PaymentAccounts/IPaymentAccount";
 import paymentAccountApi from "../../../apis/paymentAccountApi";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../../../redux/store";
+import { hideModal } from "../../../redux/modalSlice";
+import UncontrolledExample from "../Carousel";
 
-
-function Transactions() {
+const Transactions: React.FC = () => {
   const [transactionData, setTransactionData] = useState<ITransactionsModel[]>(
     []
   );
@@ -127,46 +130,56 @@ function Transactions() {
 
   const toggleTransactionsLast = () => setCollapsedLast(!collapsedLast);
   const toggleTransactionsNow = () => setCollapsedNow(!collapsedNow);
-
-  const positiveAmounts = transactionData.filter(
-    (vivi) =>
-      vivi.amount !== undefined &&
-      vivi.amount !== null &&
-      !isNaN(Number(vivi.amount)) &&
-      Number(vivi.amount) > 0
+  
+  const accountIdToFilter = useSelector(
+    (state: RootState) => state.listUser.selectedVivi?.id
   );
+  console.log('accountIdToFilter:', accountIdToFilter);
+  // Lấy tháng và năm hiện tại
+  const currentMonth = new Date().getMonth() + 1; // Tháng bắt đầu từ 0
+  const currentYear = new Date().getFullYear();
 
-  const negativeAmounts = transactionData.filter(
-    (vivi) =>
-      vivi.amount !== undefined &&
-      vivi.amount !== null &&
-      !isNaN(Number(vivi.amount)) &&
-      Number(vivi.amount) < 0
-  );
+  const { totalMoneyInByAccount, totalMoneyOutByAccount } =
+    transactionData.reduce(
+      (totals, vivi) => {
+        if (
+          vivi.fromPaymentAccountId === accountIdToFilter &&
+          vivi.transactionDate
+        ) {
+          const transactionDate = new Date(vivi.transactionDate);
+          const isSameMonth =
+            transactionDate.getMonth() + 1 === currentMonth - 1;
+          const isSameYear = transactionDate.getFullYear() === currentYear;
 
-  const totalMoney = viviData.filter(
-    (vivi) =>
-      vivi.initialMoney !== undefined &&
-      vivi.initialMoney !== null &&
-      !isNaN(Number(vivi.initialMoney)) &&
-      Number(vivi.initialMoney) > 0
-  );
+          if (isSameMonth && isSameYear) {
+            const amount = Number(vivi.amount);
+            if (!isNaN(amount)) {
+              if (amount > 0) {
+                totals.totalMoneyInByAccount += amount;
+              } else {
+                totals.totalMoneyOutByAccount += amount;
+              }
+            }
+          }
+        }
+        return totals;
+      },
+      { totalMoneyInByAccount: 0, totalMoneyOutByAccount: 0 }
+    );
 
-  const moneyUser = totalMoney.reduce(
-    (total, vivi) => total + Number(vivi.initialMoney),
-    0
+  const isModalVisible = useSelector(
+    (state: RootState) => state.modal.isModalVisible
   );
+  const dispatch = useDispatch();
 
-  const totalMoneyIn = positiveAmounts.reduce(
-    (total, vivi) => total + Number(vivi.amount),
-    0
+  const handleCloseModal = () => {
+    dispatch(hideModal());
+  };
+  const initialMoney = useSelector(
+    (state: RootState) => state.listUser.selectedVivi?.initialMoney
   );
+  console.log("Initial Money:", initialMoney);
 
-  const totalMoneyOut = negativeAmounts.reduce(
-    (total, vivi) => total + Number(vivi.amount),
-    0
-  );
- 
   return (
     <div>
       <div className="container mt-5">
@@ -188,7 +201,7 @@ function Transactions() {
                     title={
                       <span
                         className={`${"custom-tab-title"} custom-active-tab`}
-                        style={{ fontSize: "16px", }}
+                        style={{ fontSize: "16px" }}
                       >
                         THÁNG TRƯỚC
                       </span>
@@ -202,25 +215,33 @@ function Transactions() {
                         >
                           <li>
                             <span className="p-1 d-flex justify-content-between">
-                              <span>Tiền vào</span>
-                              <span className="text-primary">
-                                {moneyUser + totalMoneyIn}
+                              <span>Số tiền ban đầu:</span>
+                              <span className="">{initialMoney ?? 0}</span>
+                            </span>
+                          </li>
+                          <li>
+                            <span className="p-1 d-flex justify-content-between">
+                              <span>Tiền vào:</span>
+                              <span className="text-success">
+                                + {initialMoney ? totalMoneyInByAccount : 0}
                               </span>
                             </span>
                           </li>
                           <li>
                             <span className="p-1 d-flex justify-content-between">
-                              <span>Tiền ra</span>
+                              <span>Tiền ra:</span>
                               <span className="text-danger">
-                                {totalMoneyOut}
+                                {initialMoney ? totalMoneyOutByAccount : 0}
                               </span>
                             </span>
                           </li>
                           <li>
                             <span className="p-1 d-flex justify-content-between">
-                              <span></span>
-                              <span className="" style={{color: "#fff"}}>
-                                {moneyUser + totalMoneyOut}
+                              <span>Số tiền còn lại:</span>
+                              <span className="" style={{ color: "#fff" }}>
+                                {(initialMoney ? totalMoneyInByAccount : 0) +
+                                  (initialMoney ? totalMoneyOutByAccount : 0) +
+                                  (initialMoney ?? 0)}
                               </span>
                             </span>
                           </li>
@@ -263,6 +284,12 @@ function Transactions() {
                         >
                           <li>
                             <span className="p-1 d-flex justify-content-between">
+                              <span>Số tiền ban đầu:</span>
+                              <span className="">{initialMoney ?? 0}</span>
+                            </span>
+                          </li>
+                          <li>
+                            <span className="p-1 d-flex justify-content-between">
                               <span>Tiền vào</span>
                               <span className="text-primary">3.000.000</span>
                             </span>
@@ -276,7 +303,7 @@ function Transactions() {
                           <li>
                             <span className="p-1 d-flex justify-content-between">
                               <span></span>
-                              <span className="" style={{color: "#fff"}}>
+                              <span className="" style={{ color: "#fff" }}>
                                 + 2.700.000
                               </span>
                             </span>
@@ -330,7 +357,7 @@ function Transactions() {
                           <li>
                             <span className="p-1 d-flex justify-content-between">
                               <span></span>
-                              <span className=""style={{color: "#fff"}}>
+                              <span className="" style={{ color: "#fff" }}>
                                 + 2.700.000
                               </span>
                             </span>
@@ -353,56 +380,69 @@ function Transactions() {
                     </Row>
                   </Tab>
                 </Tabs>
+                {/* ******************************************************************************************************** */}
                 <Collapse isOpen={!collapsedLast} navbar>
                   <Nav navbar>
                     <NavItem>
-                      {transactionData.map((vivi, index) => (
-                        <NavLink
-                          key={vivi.id}
-                          style={{ cursor: "pointer" }}
-                          onClick={() => setModalUpdateTransaction(true)}
-                        >
-                          <div className="d-flex justify-content-between">
-                            <div className="d-flex">
-                              <img
-                                src="https://cdn-icons-png.flaticon.com/512/6913/6913041.png" // Thay thế bằng đường dẫn của hình ảnh avatar
-                                alt="Avatar"
-                                style={{ width: "30px", height: "30px" }}
-                                className="m-1"
-                              />
-                              <NavbarBrand
-                                className="me-auto"
-                                style={{ fontSize: "12px" }}
-                              >
-                                {vivi.fromPaymentAccountName}
-                                <div
-                                  style={{
-                                    fontSize: "13px",
-                                    marginLeft: "1px",
-                                  }}
+                      {transactionData
+                        .filter(
+                          (vivi) =>
+                            vivi.fromPaymentAccountId === accountIdToFilter &&
+                            vivi.transactionDate && // Check if transactionDate is defined
+                            new Date(vivi.transactionDate).getMonth() + 1 ===
+                              currentMonth - 1 &&
+                            new Date(vivi.transactionDate).getFullYear() ===
+                              currentYear
+                        )
+                        .map((vivi, index) => (
+                          <NavLink
+                            key={vivi.id}
+                            style={{ cursor: "pointer" }}
+                            onClick={() => setModalUpdateTransaction(true)}
+                          >
+                            <div className="d-flex justify-content-between">
+                              <div className="d-flex">
+                                <img
+                                  src="https://cdn-icons-png.flaticon.com/512/6913/6913041.png" // Thay thế bằng đường dẫn của hình ảnh avatar
+                                  alt="Avatar"
+                                  style={{ width: "30px", height: "30px" }}
+                                  className="m-1"
+                                />
+                                <NavbarBrand
+                                  className="me-auto"
+                                  style={{ fontSize: "12px" }}
                                 >
-                                  {vivi.transactionDate}
-                                </div>
-                              </NavbarBrand>
+                                  {vivi.fromPaymentAccountName}
+                                  <div
+                                    style={{
+                                      fontSize: "13px",
+                                      marginLeft: "1px",
+                                    }}
+                                  >
+                                    {vivi.transactionDate}
+                                  </div>
+                                </NavbarBrand>
+                              </div>
+                              <div className="d-flex flex-column">
+                                <span
+                                  style={{ color: "#fff", fontSize: "14px" }}
+                                >
+                                  {vivi.amount}
+                                </span>
+                                <span
+                                  style={{ color: "#e94b4b", fontSize: "14px" }}
+                                >
+                                  {vivi.description}
+                                </span>
+                              </div>
                             </div>
-                            <div className="d-flex flex-column">
-                              <span
-                                style={{ color: "#fff", fontSize: "14px" }}
-                              >
-                                {vivi.amount}
-                              </span>
-                              <span
-                                style={{ color: "#e94b4b", fontSize: "14px" }}
-                              >
-                                {vivi.description}
-                              </span>
-                            </div>
-                          </div>
-                        </NavLink>
-                      ))}
+                          </NavLink>
+                        ))}
                     </NavItem>
                   </Nav>
                 </Collapse>
+
+                {/* ******************************************************************************************************** */}
                 <Collapse isOpen={!collapsedNow} navbar>
                   <Nav navbar>
                     <NavItem>
@@ -447,14 +487,9 @@ function Transactions() {
           </div>
         </div>
       </div>
-      {/* <button onClick={() => setShowModalAddTransaction(true)}>
-        Thêm giao dịch
-      </button> */}
-      <Modal
-        show={showModalAddTransaction}
-        onHide={() => setShowModalAddTransaction(false)}
-        size="lg"
-      >
+      <UncontrolledExample/>
+      {/* ******************************************************************************************************** */}
+      <Modal show={isModalVisible} onHide={() => handleCloseModal()} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Thêm giao dịch</Modal.Title>
         </Modal.Header>
@@ -496,7 +531,7 @@ function Transactions() {
 
           <div className="d-flex justify-content-around align-items-center">
             <Form.Control
-              type="date"
+              type="datetime-local"
               placeholder="Ngày giao dịch"
               size="lg"
               className="m-2"
@@ -513,10 +548,7 @@ function Transactions() {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => setShowModalAddTransaction(false)}
-          >
+          <Button variant="secondary" onClick={() => dispatch(hideModal())}>
             Huỷ
           </Button>
           <Button variant="success" onClick={handleAddTransactions}>
@@ -524,6 +556,7 @@ function Transactions() {
           </Button>
         </Modal.Footer>
       </Modal>
+      {/* ******************************************************************************************************** */}
 
       <Modal
         show={modalUpdateTransaction}
@@ -599,8 +632,9 @@ function Transactions() {
           </Button>
         </Modal.Footer>
       </Modal>
+      {/* ******************************************************************************************************** */}
     </div>
   );
-}
+};
 
 export default Transactions;

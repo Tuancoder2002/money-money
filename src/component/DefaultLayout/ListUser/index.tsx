@@ -2,6 +2,11 @@
 import { useEffect, useState } from "react";
 import { IPaymentAccountModel } from "../../../models/PaymentAccounts/IPaymentAccount";
 import paymentAccountApi from "../../../apis/paymentAccountApi";
+import { setSelectedVivi } from "../../../redux/listUserSlice";
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from "../../../redux/store";
+import { ITransactionsModel } from "../../../models/Transactions/ITransactions";
+
 
 interface ListUserProps {
   closeModal: () => void;
@@ -12,10 +17,14 @@ const ListUser: React.FC<ListUserProps> = ({
   closeModal,
   updateHeaderData,
 }) => {
+
+  
   const handleViviClick = (vivi: IPaymentAccountModel) => {
     closeModal(); // Đóng modal ListUser
+    dispatch(setSelectedVivi(vivi));
     updateHeaderData(vivi); // Gọi hàm updateHeaderData để cập nhật dữ liệu trên thanh tiêu đề
   };
+  
 
   const [viviData, setViviData] = useState<IPaymentAccountModel[]>([]);
   useEffect(() => {
@@ -52,6 +61,7 @@ const ListUser: React.FC<ListUserProps> = ({
       closeModal(); // Gọi hàm closeModal để đóng modal
     }
   };
+  const dispatch = useDispatch();
 
   return (
     <div
@@ -95,7 +105,7 @@ const ListUser: React.FC<ListUserProps> = ({
                     {vivi.name}
                   </span>
                   <span className="m-0" style={{ fontSize: "12px" }}>
-                    {vivi.initialMoney}
+                  {vivi.initialMoney}
                   </span>
                 </div>
               </div>

@@ -8,13 +8,23 @@ const authApi = {
     formLoginData.username = formLoginData.email;
     return axiosClient().post(url, formLoginData);
   }),
-  getUserInfo(): Promise<any> {
+
+  getUserInfo: createAsyncThunk("auth/getUserInfo", async () => {
     const url = "/auth";
     return axiosClient().get(url);
-  },
-  register: createAsyncThunk("auth/register", async (input: IRegisterRequest) => {
-    return axiosClient().post('/auth/register', input);
-  })
+  }),
+
+  register: createAsyncThunk("auth/register", async (input: IRegisterRequest, { dispatch }) => {
+    // Dispatch the register request
+    const response = await axiosClient().post('/auth/register', input);
+
+    // If registration is successful, dispatch the getUserInfo action to get user information
+    if (response.status === 200) {
+      dispatch(authApi.getUserInfo());
+    }
+
+    return response.data; // You can return any relevant data if needed
+  }),
 };
 
 export default authApi;

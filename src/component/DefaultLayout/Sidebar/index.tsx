@@ -121,8 +121,8 @@ function Sidebar() {
                   className={cx("nav-item", "my-sm-1", "my-2", "small-text")}
                   onClick={() => handleLiClick("/shop")}
                 >
-                  <Link
-                    to="/chart"
+                  <a
+                    href="https://play.google.com/store/games?hl=vi&gl=US&pli=1"
                     className="nav-link"
                     style={{
                       color: activeLink === "/shop" ? "#2DB84C" : "#fff",
@@ -134,7 +134,7 @@ function Sidebar() {
                         Cửa hàng
                       </span>
                     </span>
-                  </Link>
+                  </a>
                 </li>
                 <li
                   className={cx("nav-item", "my-sm-1", "my-2", "small-text")}
