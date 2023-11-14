@@ -1,11 +1,15 @@
-import classNames from "classnames/bind";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Modal } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import { Link, useNavigate } from "react-router-dom";
 import AccountUser from "../AccountUser";
 import ListUser from "../ListUser";
 import styles from "./Header.module.scss";
+import { useDispatch } from "react-redux";
+import { vi } from "date-fns/locale";
+import { format } from "date-fns";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 import {
   Building,
@@ -16,7 +20,6 @@ import {
   List,
   PersonFill,
   Search,
-  Wallet2,
 } from "react-bootstrap-icons";
 import {
   Collapse,
@@ -29,44 +32,44 @@ import {
 
 import { IPaymentAccountModel } from "../../../models/PaymentAccounts/IPaymentAccount";
 import { authActions } from "../../../redux/authReducer";
-import { useAppDispatch } from "../../../redux/hooks";
-import AddTransaction from "../AddTransaction";
-// Định kiểu cho props của Header
+// import { useAppDispatch } from "../../../redux/hooks";
 
-
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// import { faCalendar, faChevronDown, faEye, faSearch } from '@fortawesome/free-solid-svg-icons';
+import classNames from "classnames";
+import { ITransactionsModel } from "../../../models/Transactions/ITransactions";
+import { showModal } from "../../../redux/modalSlice";
 
 const cx = classNames.bind(styles);
 
 function Header() {
-
-  const dispatch = useAppDispatch();
+  const [startDate, setStartDate] = useState<Date | null>(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [viviData, setViviData] = useState<ITransactionsModel[]>([]);
   const navigate = useNavigate();
   const [showModalListUser, setShowModalListUser] = useState(false);
   const [showModalAccountUser, setShowModalAccountUser] = useState(false);
-
   const [showModalAddTransaction, setShowModalAddTransaction] = useState(false);
   const [headerData, setHeaderData] = useState<any>({
-    // Khởi tạo dữ liệu ban đầu
-    imgVi: "logo192.png",
+    imgVi: "icon.png",
     nameVi: "Chưa chọn ví",
     cash: "Hãy chọn ví",
-    // Các trường dữ liệu khác của thẻ tiền mặt
   });
-  const updateHeaderData = (vivi: IPaymentAccountModel) => {
-    // Tạo một bản sao của dữ liệu hiện tại
-    const updatedHeaderData = { ...headerData };
-    // Cập nhật các trường dữ liệu của thẻ tiền mặt dựa trên dữ liệu của ví được truyền vào
-    updatedHeaderData.cash = vivi.initialMoney; // Sử dụng trường initialMoney của ví
-    updatedHeaderData.nameVi = vivi.name;
-    updatedHeaderData.imgVi = vivi.icon;
-    // Các trường dữ liệu khác tương tự
-
-    // Cập nhật state để hiển thị dữ liệu mới
-    setHeaderData(updatedHeaderData);
+  const handleIconClick = () => {
+    setShowDatePicker(true);
   };
 
+  const handleDatePickerChange = (date: Date | null) => {
+    if (date) {
+      setStartDate(date);
+    }
+    setShowDatePicker(false);
+  };
+  const updateHeaderData = (vivi: IPaymentAccountModel) => {
+    const updatedHeaderData = { ...headerData };
+    updatedHeaderData.cash = vivi.initialMoney;
+    updatedHeaderData.nameVi = vivi.name;
+    updatedHeaderData.imgVi = vivi.icon;
+    setHeaderData(updatedHeaderData);
+  };
 
   const openModalListUser = () => {
     setShowModalListUser(true);
@@ -75,10 +78,10 @@ function Header() {
   const closeModalListUser = () => {
     setShowModalListUser(false);
   };
+
   const handleOpenModalAddTransaction = () => {
     setShowModalAddTransaction(true);
   };
-
 
   const handleOpenModalAccountUser = () => {
     setShowModalAccountUser(true);
@@ -89,103 +92,119 @@ function Header() {
   const toggleNavbar = () => setCollapsed(!collapsed);
 
   const handleLogout = (event: any) => {
-    console.log("logout");
     setShowModalAccountUser(false);
     dispatch(authActions.logout());
     event.preventDefault();
     navigate("/logout");
-  }
+  };
+
+  const dispatch = useDispatch();
+
+  const handleButtonClick = () => {
+    dispatch(showModal());
+  };
 
   return (
     <div className="wraper-header">
       <Navbar
-        color="#fff"
-
         style={{
-
           borderRadius: "1px",
-          boxShadow: "0 0 5px #ccc",
+          boxShadow: "0 0 3px #6074b3",
+          backgroundColor: "rgba(54, 19, 84, 0.8)",
+          color: "#fff",
         }}
-        className="d-flex"
+        className="d-flex justify-content-evenly"
       >
         <List onClick={toggleNavbar} size={24} className={cx("m-2", "icon")} />
         <img
-          src={headerData.imgVi} // Thay thế bằng đường dẫn của hình ảnh avatar
+          src={headerData.imgVi}
           alt="Avatar"
           className={cx("avatar", "m-2")}
+          style={{ borderRadius: "50%", height: "35px", width: "35px" }}
         />
-        <NavbarBrand className="me-auto" style={{ fontSize: "12px" }}>
+        <NavbarBrand
+          className="me-auto"
+          style={{ fontSize: "12px", color: "#fff" }}
+        >
           {headerData.nameVi}
-          <CaretDownFill size={10} className={cx("m-2", "icon")} onClick={openModalListUser} />
+          <CaretDownFill
+            size={10}
+            className={cx("m-2", "icon")}
+            onClick={openModalListUser}
+          />
           <div
             style={{
               fontSize: "13px",
               marginLeft: "1px",
-              color: "#000000",
+              color: "#fff",
               fontWeight: "bold",
             }}
           >
-            {headerData.cash} {/* Hiển thị số tiền từ headerData */}
+            {headerData.cash}
           </div>
         </NavbarBrand>
-        <CalendarDateFill size={20} className={cx("m-2", "icon")} />
+        <CalendarDateFill
+          size={20}
+          className={cx("m-2", "icon")}
+          onClick={() => setShowDatePicker(true)}
+        />
+        {showDatePicker && (
+          <div className="calendar-container">
+            <DatePicker
+              inline
+              selected={startDate}
+              onChange={(date: Date | null) => setStartDate(date)}
+              dateFormat="dd/MM/yyyy"
+              showYearDropdown
+              showMonthDropdown
+            />
+            <div className="current-date">
+              {startDate && format(startDate, "dd/MM/yyyy", { locale: vi })}
+            </div>
+            <button onClick={() => setShowDatePicker(false)}>Đóng</button>
+          </div>
+        )}
+
         <EyeFill size={20} className={cx("m-2", "icon")} />
+
         <Search size={20} className={cx("m-2", "icon")} />
-        <Button
-          onClick={handleOpenModalAddTransaction}
-          variant="success"
-          className="m-2"
-        >
+        <Button onClick={handleButtonClick} variant="success" className="m-2">
           Thêm giao dịch
         </Button>
         <Collapse isOpen={!collapsed} navbar>
           <Nav navbar>
             <NavItem>
-              <NavLink
-                onClick={handleOpenModalAccountUser}
-                style={{ cursor: "pointer" }}
-              >
-                <div className="d-flex justify-content-between">
-                  <div className="d-flex">
-                    <PersonFill size={25} className={cx("icon")} />
-
-                    <span>Quản lý tài khoản</span>
-                  </div>
-                  <ChevronRight size={20} className={cx("icon")} />
-                </div>
-              </NavLink>
-            </NavItem>
-            <NavItem>
               <NavLink style={{ cursor: "pointer" }}>
-                <Link to="/wallet" className="nav-link">
-                  <div className="d-flex justify-content-between">
-                    <div className="d-flex">
-                      <Wallet2 size={22} className={cx("icon", "mr-1")} />
-
-                      <span>Ví của tôi</span>
-                    </div>
-                    <ChevronRight size={20} className={cx("icon")} />
-                  </div>
-                </Link>
-              </NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink
-
-                style={{ cursor: "pointer" }}
-              >
-                <Link to="/categories" className="nav-link">
-
+                <Link
+                  to="/categories"
+                  className="nav-link"
+                  style={{ color: "#fff" }}
+                >
                   <div className="d-flex justify-content-between">
                     <div className="d-flex">
                       <Building size={22} className={cx("icon")} />
-
                       <span>Nhóm</span>
                     </div>
                     <ChevronRight size={20} className={cx("icon")} />
                   </div>
                 </Link>
-
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink
+                onClick={handleOpenModalAccountUser}
+                style={{ cursor: "pointer" }}
+              >
+                <div
+                  className="d-flex justify-content-between"
+                  style={{ color: "#fff" }}
+                >
+                  <div className="d-flex">
+                    <PersonFill size={25} className={cx("icon")} />
+                    <span>Quản lý tài khoản</span>
+                  </div>
+                  <ChevronRight size={20} className={cx("icon")} />
+                </div>
               </NavLink>
             </NavItem>
           </Nav>
@@ -202,50 +221,21 @@ function Header() {
         <Modal.Body>
           <AccountUser />
         </Modal.Body>
-
         <Modal.Footer>
           <Link to="/">
-            <Button
-              variant="secondary"
-              onClick={(e) => handleLogout(e)}
-            >
+            <Button variant="secondary" onClick={(e) => handleLogout(e)}>
               Đăng xuất
             </Button>
           </Link>
         </Modal.Footer>
       </Modal>
 
-
-
-      <Modal
-        show={showModalAddTransaction}
-        onHide={() => setShowModalAddTransaction(false)}
-        size="lg"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Thêm giao dịch</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <AddTransaction />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => setShowModalAddTransaction(false)}
-          >
-            Huỷ
-          </Button>
-          <Button
-            variant="success"
-            onClick={() => setShowModalAddTransaction(false)}
-          >
-            Lưu
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-      {showModalListUser && <ListUser closeModal={closeModalListUser} updateHeaderData={updateHeaderData} />}
-
+      {showModalListUser && (
+        <ListUser
+          closeModal={closeModalListUser}
+          updateHeaderData={updateHeaderData}
+        />
+      )}
     </div>
   );
 }

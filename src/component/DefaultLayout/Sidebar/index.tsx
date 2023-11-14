@@ -7,6 +7,8 @@ import {
   Calendar,
   Journals,
   ClipboardPulse,
+  ChevronRight,
+  Wallet2,
 } from "react-bootstrap-icons";
 import { Link } from "react-router-dom";
 import { useState } from "react";
@@ -24,7 +26,10 @@ function Sidebar() {
   };
 
   return (
-    <div className={cx("wraper-sidebar")}>
+    <div
+      className={cx("wraper-sidebar")}
+      style={{ backgroundColor: "rgba(54, 19, 84, 0.8)" }}
+    >
       <div className={cx("")}>
         <div className={cx("")}>
           <div
@@ -33,9 +38,9 @@ function Sidebar() {
               "flex-column",
               "justify-content-between",
               "col-auto",
-              "bg-white",
-              "vh-100",
-              "height"
+
+              "height",
+              "custom-height"
             )}
           >
             <div className={cx("mt-2")}>
@@ -45,25 +50,60 @@ function Sidebar() {
                   "text-muted",
                   "flex-column",
                   "mt-4",
-                  "mt-sm-0"
+                  "mt-sm-0",
+                  "mb-4"
                 )}
                 id="menu"
               >
                 <li
-                  className={cx("nav-item", "my-sm-1", "my-2", "small-text")}
+                  className={cx(
+                    "nav-item",
+                    "my-sm-1",
+                    "my-2",
+                    "small-text",
+                    "mb-4",
+                    "mt-4"
+                  )}
                   onClick={() => handleLiClick("/home")}
                 >
                   <Link
                     to="/home"
                     className="nav-link"
                     style={{
-                      color: activeLink === "/home" ? "#2DB84C" : "#0000008A",
+                      color: activeLink === "/home" ? "#2DB84C" : "#fff",
                     }}
                   >
                     <span className={cx("icon-below-text")}>
                       <Calendar size={20} className={cx("m-2", "icon")} />
                       <span className={cx("d-none", "d-sm-inline")}>
                         Sổ giao dịch
+                      </span>
+                    </span>
+                  </Link>
+                </li>
+                <li
+                  className={cx(
+                    "nav-item",
+                    "my-sm-1",
+                    "my-2",
+                    "small-text",
+                    "mb-4",
+                    "mt-4"
+                  )}
+                  onClick={() => handleLiClick("/wallet")}
+                >
+                  <Link
+                    to="/wallet"
+                    className="nav-link"
+                    style={{
+                      color: activeLink === "/wallet" ? "#2DB84C" : "#fff",
+                    }}
+                  >
+                    <span className={cx("icon-below-text")}>
+                      <Wallet2 size={20} className={cx("m-2", "icon")} />
+
+                      <span className={cx("d-none", "d-sm-inline")}>
+                        Ví của tôi
                       </span>
                     </span>
                   </Link>
@@ -76,7 +116,7 @@ function Sidebar() {
                     to="/chart"
                     className="nav-link"
                     style={{
-                      color: activeLink === "/chart" ? "#2DB84C" : "#0000008A",
+                      color: activeLink === "/chart" ? "#2DB84C" : "#fff",
                     }}
                   >
                     <span className={cx("icon-below-text")}>
@@ -95,7 +135,7 @@ function Sidebar() {
                     to="/wallet"
                     className="nav-link"
                     style={{
-                      color: activeLink === "/buget" ? "#2DB84C" : "#0000008A",
+                      color: activeLink === "/buget" ? "#2DB84C" : "#fff",
                     }}
                   >
                     <span className={cx("icon-below-text")}>
@@ -110,11 +150,11 @@ function Sidebar() {
                   className={cx("nav-item", "my-sm-1", "my-2", "small-text")}
                   onClick={() => handleLiClick("/shop")}
                 >
-                  <Link
-                    to="/chart"
+                  <a
+                    href="https://play.google.com/store/games?hl=vi&gl=US&pli=1"
                     className="nav-link"
                     style={{
-                      color: activeLink === "/shop" ? "#2DB84C" : "#0000008A",
+                      color: activeLink === "/shop" ? "#2DB84C" : "#fff",
                     }}
                   >
                     <span className={cx("icon-below-text")}>
@@ -123,7 +163,7 @@ function Sidebar() {
                         Cửa hàng
                       </span>
                     </span>
-                  </Link>
+                  </a>
                 </li>
                 <li
                   className={cx("nav-item", "my-sm-1", "my-2", "small-text")}
@@ -134,9 +174,7 @@ function Sidebar() {
                     className="nav-link"
                     style={{
                       color:
-                        activeLink === "/QuestionCircle"
-                          ? "#2DB84C"
-                          : "#0000008A",
+                        activeLink === "/QuestionCircle" ? "#2DB84C" : "#fff",
                     }}
                   >
                     <span className={cx("icon-below-text")}>

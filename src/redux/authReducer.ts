@@ -1,13 +1,20 @@
-import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { PayloadAction, createSelector, createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
-import authApi from '../apis/authApi';
+import authApi from "../apis/authApi";
+import { RootState } from "./store";
 interface AuthState {
   isAuthenticated: boolean;
   accessToken: string;
+  user: UserInfo | null;
 }
 const initialState: AuthState = {
   isAuthenticated: false,
-  accessToken: ''
+  accessToken: "",
+  user: null,
+};
+interface UserInfo {
+  name: string;
+  email: string;
 }
 
 const authSlice = createSlice({
@@ -19,16 +26,19 @@ const authSlice = createSlice({
     },
     logout: () => {
       localStorage.clear();
-    }
+    },
   },
   extraReducers: {
     [authApi.login.pending.type]: (state, action) => {
       state.isAuthenticated = false;
     },
     [authApi.login.fulfilled.type]: (state, action) => {
-      localStorage.setItem('access_token', action.payload);
-      console.log('success', action);
+      localStorage.setItem("access_token", action.payload);
+      console.log("success", action);
       state.isAuthenticated = true;
+      toast.success("Đăng nhập thành công!", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
     },
     [authApi.login.rejected.type]: (state, action) => {
       state.isAuthenticated = false;
@@ -36,9 +46,7 @@ const authSlice = createSlice({
         position: toast.POSITION.TOP_RIGHT,
       });
     },
-    [authApi.register.pending.type]: (state, action) => {
-
-    },
+    [authApi.register.pending.type]: (state, action) => {},
     [authApi.register.fulfilled.type]: (state, action) => {
       toast.success("Đăng ký thành công. Đăng nhập ngay!", {
         position: toast.POSITION.TOP_RIGHT,
@@ -48,11 +56,20 @@ const authSlice = createSlice({
       toast.error("Đăng ký thất bại", {
         position: toast.POSITION.TOP_RIGHT,
       });
-
-    }
-  }
-})
+    },
+  },
+});
 // Actions
 export const authActions = authSlice.actions;
+
+export const selectUser = createSelector(
+  [(state: RootState) => state.auth.user],
+  (user) => user
+);
+
+export const selectisAuthenticated = createSelector(
+  [(state: RootState) => state.auth.isAuthenticated],
+  (isAuthenticated) => isAuthenticated
+);
 
 export default authSlice.reducer;

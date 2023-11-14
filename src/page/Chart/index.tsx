@@ -33,7 +33,7 @@ function MyChart() {
           data: {
             datasets: [{
               pointRadius: 4,
-              pointBackgroundColor: "rgba(0,0,255,1)",
+              pointBackgroundColor: "#fff70e",
               data: xyValues,
             }],
           },
@@ -46,14 +46,17 @@ function MyChart() {
   }, []);
 
   return (
-    <div className='d-flex justify-content-center mt-4'>
+    <div className='d-flex justify-content-center mt-4 mb-4' >
       <canvas
         id="myChart"
         ref={chartRef}
         style={{
           width: "100%",
           maxWidth: "700px",
-          backgroundColor: "#ffffff"
+          backgroundColor: "rgba(54, 19, 84, 0.8)",
+          height: "100%",
+          maxHeight:"500px",
+          color:"#fff"
         }}
         className='rounded-1'
       >

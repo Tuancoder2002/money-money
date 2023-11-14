@@ -64,3 +64,7 @@
     
     transition: transform 0.2s ease, color 0.2s ease; /* Hiệu ứng hover */
   }
+
+  .custom-height {
+    height: 80vh; /* 80% chiều cao của trình duyệt */
+  }

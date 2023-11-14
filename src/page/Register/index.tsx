@@ -52,7 +52,7 @@ function Register() {
 
     } else {
       toast.warning("Vui lòng điền chính xác tất cả các trường bắt buộc", {
-        position: toast.POSITION.TOP_RIGHT, // Vị trí hiển thị thông báo (có nhiều tùy chọn khác)
+        position: toast.POSITION.TOP_RIGHT,
       });
     }
   }
