@@ -7,9 +7,15 @@ import Form from "react-bootstrap/Form";
 import { Wallet2 } from "react-bootstrap-icons";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useAppDispatch } from "../../../redux/hooks";
+import {
+  paymentAccountActions,
+  selectPaymentAccountViews,
+} from "../../../redux/paymentAccountReducer";
+import { useSelector } from "react-redux";
 
 function ListWalletsUser() {
-  const [viviData, setViviData] = useState<IPaymentAccountModel[]>([]);
+  const viviData = useSelector(selectPaymentAccountViews);
   const [editViviName, setEditViviName] = useState("");
   const [editViviAmount, setEditViviAmount] = useState("");
   const [showModalAddWallet, setShowModalAddWallet] = useState(false);
@@ -22,12 +28,19 @@ function ListWalletsUser() {
     setSelectedVivi(vivi);
     setShowViviDetails(true);
   };
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await paymentAccountApi.getAll({});
-        setViviData(response.data);
+        dispatch(paymentAccountApi.getAll({}))
+          .unwrap()
+          .then((response) => {
+            dispatch(
+              paymentAccountActions.setPaymentAccountViews(response.data)
+            );
+          })
+          .catch((error) => {});
       } catch (error) {
         console.error("Lỗi khi lấy dữ liệu ví:", error);
       }
@@ -54,14 +67,16 @@ function ListWalletsUser() {
         paymentAccountApi
           .delete(accountId)
           .then((res) => {
-            return paymentAccountApi.getAll({});
-          })
-          .then((resPaymentAccounts) => {
-            setViviData(resPaymentAccounts.data);
-            setShowViviDetails(false);
             toast.success("Đã xoá tài khoản thành công.", {
               position: toast.POSITION.TOP_RIGHT,
             });
+            dispatch(paymentAccountApi.getAll({}))
+              .unwrap()
+              .then((response) => {
+                paymentAccountActions.setPaymentAccountViews(response.data);
+
+                setShowViviDetails(false);
+              });
           })
           .catch((error) => {
             toast.error("Lỗi khi xoá tài khoản.", {
@@ -88,7 +103,7 @@ function ListWalletsUser() {
           selectedVivi.id,
           updatedViviData[editedViviIndex]
         );
-        setViviData(updatedViviData);
+        paymentAccountActions.setPaymentAccountViews(updatedViviData);
         setShowEditModal(false);
         toast.success("Thông tin ví đã được cập nhật thành công.", {
           position: toast.POSITION.TOP_RIGHT,
@@ -115,7 +130,7 @@ function ListWalletsUser() {
       const response = await paymentAccountApi.create(newVivi);
       if (response.id != null) {
         const updatedViviData = [...viviData, response];
-        setViviData(updatedViviData);
+        paymentAccountActions.setPaymentAccountViews(updatedViviData);
         setShowModalAddWallet(false);
         toast.success("Tạo ví thành công.", {
           position: toast.POSITION.TOP_RIGHT,
@@ -197,7 +212,7 @@ function ListWalletsUser() {
           height: "100%",
           borderRadius: "30px",
           boxShadow: "0 0 5px #ccc",
-          color:"#fff"
+          color: "#fff",
         }}
       >
         <div className="m-2">
@@ -284,7 +299,7 @@ function ListWalletsUser() {
               <span className="link-success">CHIA SẺ VÍ</span>
             </div>
             <div className="mb-2">
-            <span className="link-success">CHUYỂN TIỀN</span>
+              <span className="link-success">CHUYỂN TIỀN</span>
             </div>
             <Button
               onClick={handleOpenModalAddWallet}

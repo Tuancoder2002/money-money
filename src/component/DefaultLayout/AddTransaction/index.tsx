@@ -14,7 +14,7 @@ function AddTransaction({
     fromPaymentAccountId: "",
     fromPaymentAccountName: "",
     categoryName: "",
-    amount: "",
+    amount: 0,
     transactionDate: "",
   });
 
@@ -46,7 +46,7 @@ function AddTransaction({
           fromPaymentAccountId: "",
           fromPaymentAccountName: "",
           categoryName: "",
-          amount: "",
+          amount: 0,
           transactionDate: "",
         });
       })

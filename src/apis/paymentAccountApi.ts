@@ -3,13 +3,17 @@ import { IBasePaging } from "../models/Bases/IBasePagination";
 import { IFilterBodyRequest } from "../models/Bases/IFilterBodyRequest";
 import { IPaymentAccountModel } from "../models/PaymentAccounts/IPaymentAccount";
 import { ConvertObjectToFormData } from "../unils/common";
+import { createAsyncThunk } from "@reduxjs/toolkit";
 
 const paymentAccountApi = {
-  getAll(data: IFilterBodyRequest): Promise<IBasePaging<IPaymentAccountModel>> {
-    const url = "/paymentAccounts/filter";
-    data.pagination = { pageSize: 1000 };
-    return axiosClient().post(url, data);
-  },
+  getAll: createAsyncThunk(
+    "paymentAccounts/filter",
+    (data: IFilterBodyRequest): Promise<IBasePaging<IPaymentAccountModel>> => {
+      const url = "/paymentAccounts/filter";
+      data.pagination = { pageSize: 1000 };
+      return axiosClient().post(url, data);
+    }
+  ),
   create(data: IPaymentAccountModel): Promise<IPaymentAccountModel> {
     const url = "/PaymentAccounts";
     const formData = ConvertObjectToFormData(data, new FormData());

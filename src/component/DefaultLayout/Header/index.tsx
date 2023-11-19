@@ -3,7 +3,6 @@ import { Modal } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import { Link, useNavigate } from "react-router-dom";
 import AccountUser from "../AccountUser";
-import ListUser from "../ListUser";
 import styles from "./Header.module.scss";
 import { useDispatch } from "react-redux";
 import { vi } from "date-fns/locale";
@@ -37,6 +36,7 @@ import { authActions } from "../../../redux/authReducer";
 import classNames from "classnames";
 import { ITransactionsModel } from "../../../models/Transactions/ITransactions";
 import { showModal } from "../../../redux/modalSlice";
+import PaymentAccountsHeaderComponent from "../PaymentAccountsHeaderComponent";
 
 const cx = classNames.bind(styles);
 
@@ -231,7 +231,7 @@ function Header() {
       </Modal>
 
       {showModalListUser && (
-        <ListUser
+        <PaymentAccountsHeaderComponent
           closeModal={closeModalListUser}
           updateHeaderData={updateHeaderData}
         />

@@ -20,6 +20,10 @@ import {
 } from "../../../redux/transactionReducer";
 import { IFilterBodyRequest } from "../../../models/Bases/IFilterBodyRequest";
 import { useAppDispatch } from "../../../redux/hooks";
+import {
+  paymentAccountActions,
+  selectPaymentAccountViews,
+} from "../../../redux/paymentAccountReducer";
 
 const Transactions: React.FC = () => {
   const transactionData = useSelector(selectTransactions);
@@ -27,7 +31,7 @@ const Transactions: React.FC = () => {
   const moneyNowMonth = useSelector(selectMoneyNowMonth);
   const [selectedTransaction, setSelectedTransaction] =
     useState<ITransactionsModel | null>(null);
-  const [viviData, setViviData] = useState<IPaymentAccountModel[]>([]);
+  const viviData = useSelector(selectPaymentAccountViews);
   // const [showTransactionDetails, setShowTransactionDetails] = useState(false);
   // const handleShowDetails = (vivi: ITransactionsModel) => {
   //   setSelectedTransaction(vivi);
@@ -37,7 +41,7 @@ const Transactions: React.FC = () => {
   const [showModalAddTransaction, setShowModalAddTransaction] = useState(false);
   const [modalUpdateTransaction, setModalUpdateTransaction] = useState(false);
 
-  const [editTransactionAmount, setEditTransactionAmount] = useState("");
+  const [editTransactionAmount, setEditTransactionAmount] = useState(0);
   const [editFromPaymentAccountId, setFromPaymentAccountId] = useState("");
   const [editTransactionDate, setEditTransactionDate] = useState("");
   const [editTransactionDescription, setEditTransactionDescription] =
@@ -137,6 +141,14 @@ const Transactions: React.FC = () => {
         .unwrap()
         .then((response) => {
           dispatch(transactionActions.setTransactions(response.data));
+          let tongChiTieu = response.data.reduce(function (current, next) {
+            return current + next.amount;
+          }, 0);
+          let currentPaymentAccount = viviData.find((v) => v.id === ""); // todo get current payment account
+          if (currentPaymentAccount != null)
+            currentPaymentAccount.currentMoney =
+              currentPaymentAccount.initialMoney + tongChiTieu;
+          dispatch(paymentAccountActions.setOrUpdatePaymentAccountView);
         })
         .catch((error) => {});
       // const response = await transactionsApi.getAll({});
@@ -148,8 +160,12 @@ const Transactions: React.FC = () => {
   // Hàm này sẽ gọi API để lấy danh sách ví và cập nhật vào state khi component được render.
   const fetchViviData = async () => {
     try {
-      const response = await paymentAccountApi.getAll({});
-      setViviData(response.data);
+      dispatch(paymentAccountApi.getAll({}))
+        .unwrap()
+        .then((response) => {
+          dispatch(paymentAccountActions.setPaymentAccountViews(response.data));
+        })
+        .catch((error) => {});
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu ví:", error);
     }
@@ -367,7 +383,7 @@ const Transactions: React.FC = () => {
                           <li>
                             <span
                               className="p-1 d-flex justify-content-center text-success"
-                              onClick={toggleTransactionsLast}
+                              onClick={toggleTransactionsNow}
                             >
                               <span
                                 className="nav-link"
@@ -505,39 +521,60 @@ const Transactions: React.FC = () => {
                 <Collapse isOpen={!collapsedNow} navbar>
                   <Nav navbar>
                     <NavItem>
-                      {transactionData.map((vivi, index) => (
-                        <NavLink key={vivi.id} style={{ cursor: "pointer" }}>
-                          <div className="d-flex justify-content-between">
-                            <div className="d-flex">
-                              <img
-                                src="https://cdn-icons-png.flaticon.com/512/6913/6913041.png" // Thay thế bằng đường dẫn của hình ảnh avatar
-                                alt="Avatar"
-                                style={{ width: "30px", height: "30px" }}
-                                className="m-1"
-                              />
-                              <NavbarBrand
-                                className="me-auto"
-                                style={{ fontSize: "12px" }}
-                              >
-                                {vivi.fromPaymentAccountName}
-                                <div
-                                  style={{
-                                    fontSize: "13px",
-                                    marginLeft: "1px",
-                                  }}
+                      {transactionData
+                        .filter(
+                          (vivi) =>
+                            vivi.fromPaymentAccountId === accountIdToFilter &&
+                            vivi.transactionDate && // Check if transactionDate is defined
+                            new Date(vivi.transactionDate).getMonth() + 1 ===
+                              currentMonth &&
+                            new Date(vivi.transactionDate).getFullYear() ===
+                              currentYear
+                        )
+                        .map((vivi, index) => (
+                          <NavLink
+                            key={vivi.id}
+                            style={{ cursor: "pointer" }}
+                            onClick={() => setModalUpdateTransaction(true)}
+                          >
+                            <div className="d-flex justify-content-between">
+                              <div className="d-flex">
+                                <img
+                                  src="https://cdn-icons-png.flaticon.com/512/6913/6913041.png" // Thay thế bằng đường dẫn của hình ảnh avatar
+                                  alt="Avatar"
+                                  style={{ width: "30px", height: "30px" }}
+                                  className="m-1"
+                                />
+                                <NavbarBrand
+                                  className="me-auto"
+                                  style={{ fontSize: "12px" }}
                                 >
-                                  {vivi.transactionDate}
-                                </div>
-                              </NavbarBrand>
+                                  {vivi.fromPaymentAccountName}
+                                  <div
+                                    style={{
+                                      fontSize: "13px",
+                                      marginLeft: "1px",
+                                    }}
+                                  >
+                                    {vivi.transactionDate}
+                                  </div>
+                                </NavbarBrand>
+                              </div>
+                              <div className="d-flex flex-column">
+                                <span
+                                  style={{ color: "#fff", fontSize: "14px" }}
+                                >
+                                  {vivi.amount}
+                                </span>
+                                <span
+                                  style={{ color: "#e94b4b", fontSize: "14px" }}
+                                >
+                                  {vivi.description}
+                                </span>
+                              </div>
                             </div>
-                            <span
-                              style={{ color: "#000000", fontSize: "13px" }}
-                            >
-                              {vivi.amount}
-                            </span>
-                          </div>
-                        </NavLink>
-                      ))}
+                          </NavLink>
+                        ))}
                     </NavItem>
                   </Nav>
                 </Collapse>
@@ -584,7 +621,7 @@ const Transactions: React.FC = () => {
               size="lg"
               className="m-2"
               value={editTransactionAmount}
-              onChange={(e) => setEditTransactionAmount(e.target.value)}
+              onChange={(e) => setEditTransactionAmount(+e.target.value)}
             />
           </div>
 
@@ -657,7 +694,7 @@ const Transactions: React.FC = () => {
               size="lg"
               className="m-2"
               value={editTransactionAmount}
-              onChange={(e) => setEditTransactionAmount(e.target.value)}
+              onChange={(e) => setEditTransactionAmount(+e.target.value)}
             />
           </div>
 

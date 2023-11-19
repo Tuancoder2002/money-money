@@ -15,6 +15,7 @@ const transactionsApi = {
       return await axiosClient().post(url, data);
     }
   ),
+  
   create(data: ITransactionsModel): Promise<ITransactionsModel> {
     const url = "/Transactions";
     const formData = ConvertObjectToFormData(data, new FormData());
