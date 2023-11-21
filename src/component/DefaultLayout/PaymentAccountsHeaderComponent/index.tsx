@@ -2,13 +2,16 @@
 import { useEffect, useState } from "react";
 import { IPaymentAccountModel } from "../../../models/PaymentAccounts/IPaymentAccount";
 import paymentAccountApi from "../../../apis/paymentAccountApi";
-import { setSelectedVivi } from "../../../redux/listUserSlice";
+import { selectSelectedVivi, setSelectedVivi } from "../../../redux/listUserSlice";
 import { useAppDispatch } from "../../../redux/hooks";
 import paymentAccountReducer, {
   paymentAccountActions,
   selectPaymentAccountViews,
 } from "../../../redux/paymentAccountReducer";
 import { useSelector } from "react-redux";
+import { IFilterBodyRequest } from "../../../models/Bases/IFilterBodyRequest";
+import transactionsApi from "../../../apis/transactionsApi";
+import { transactionActions } from "../../../redux/transactionReducer";
 
 interface PaymentAccountsProps {
   closeModal: () => void;
@@ -22,10 +25,12 @@ const PaymentAccountsHeaderComponent: React.FC<PaymentAccountsProps> = ({
   const dispatch = useAppDispatch();
 
   const viviData = useSelector(selectPaymentAccountViews);
+  
   const handleViviClick = (vivi: IPaymentAccountModel) => {
     closeModal(); // Đóng modal ListUser
     dispatch(setSelectedVivi(vivi));
     updateHeaderData(vivi); // Gọi hàm updateHeaderData để cập nhật dữ liệu trên thanh tiêu đề
+    console.log("bye", updateHeaderData(vivi))
   };
   // Hàm này sẽ gọi API để lấy danh sách ví và cập nhật vào state khi component được render.
   const fetchData = async () => {
@@ -73,9 +78,6 @@ const PaymentAccountsHeaderComponent: React.FC<PaymentAccountsProps> = ({
     >
       <div style={modalStyle}>
         <div>
-          {/* Thêm nội dung modal ở đây */}
-          <span>test payment account</span>
-
           {viviData.map((vivi, index) => {
             console.log(`render payment account ${index}: ${vivi.name}`);
             return (

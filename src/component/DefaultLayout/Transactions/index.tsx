@@ -26,6 +26,7 @@ import {
 } from "../../../redux/paymentAccountReducer";
 
 const Transactions: React.FC = () => {
+  const currentDate = new Date().toISOString().slice(0, 16);
   const transactionData = useSelector(selectTransactions);
   const moneyLastMonth = useSelector(selectMoneyLastMonth);
   const moneyNowMonth = useSelector(selectMoneyNowMonth);
@@ -137,26 +138,31 @@ const Transactions: React.FC = () => {
   const fetchTransactionData = async () => {
     try {
       const request: IFilterBodyRequest = {};
-      dispatch(transactionsApi.getAll(request))
-        .unwrap()
-        .then((response) => {
-          dispatch(transactionActions.setTransactions(response.data));
-          let tongChiTieu = response.data.reduce(function (current, next) {
-            return current + next.amount;
-          }, 0);
-          let currentPaymentAccount = viviData.find((v) => v.id === ""); // todo get current payment account
-          if (currentPaymentAccount != null)
-            currentPaymentAccount.currentMoney =
-              currentPaymentAccount.initialMoney + tongChiTieu;
-          dispatch(paymentAccountActions.setOrUpdatePaymentAccountView);
-        })
-        .catch((error) => {});
-      // const response = await transactionsApi.getAll({});
-      // setTransactionData(response.data);
+      const response = await dispatch(transactionsApi.getAll(request));
+
+      if (transactionsApi.getAll.fulfilled.match(response)) {
+        const responseData = response.payload.data; // Lấy mảng dữ liệu từ IBasePaging
+
+        dispatch(transactionActions.setTransactions(responseData));
+
+        const tongChiTieu = responseData.reduce(function (current, next) {
+          return current + next.amount;
+        }, 0);
+
+        // Todo: Lấy tài khoản thanh toán hiện tại dựa trên logic cụ thể
+        let currentPaymentAccount = viviData.find((v) => v.id === accountIdToFilter);
+        console.log("hello",currentPaymentAccount)
+        if (currentPaymentAccount != null) {
+          currentPaymentAccount.currentMoney =
+            currentPaymentAccount.initialMoney + tongChiTieu;
+        }
+        dispatch(paymentAccountActions.setOrUpdatePaymentAccountView);
+      }
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu", error);
     }
   };
+
   // Hàm này sẽ gọi API để lấy danh sách ví và cập nhật vào state khi component được render.
   const fetchViviData = async () => {
     try {
@@ -184,24 +190,18 @@ const Transactions: React.FC = () => {
     };
 
     try {
-      const response = await transactionsApi.create(newVivi);
-      if (response.id != null) {
-        const updatedViviData = [...transactionData, response];
-        dispatch(transactionActions.setTransactions(updatedViviData));
-        setShowModalAddTransaction(false);
-        toast.success("Thêm giao dịch thành công", {
-          position: toast.POSITION.TOP_RIGHT,
-        });
-      } else {
-        toast.error("Có lỗi khi thêm giao dịch", {
-          position: toast.POSITION.TOP_RIGHT,
-        });
+      const response = await dispatch(transactionsApi.create(newVivi));
+
+      if (transactionsApi.create.fulfilled.match(response)) {
+        const responseData = response.payload; // Dữ liệu phản hồi từ createAsyncThunk
+
+        if (responseData.id != null) {
+          const updatedViviData = [...transactionData, responseData];
+          dispatch(transactionActions.setTransactions(updatedViviData));
+          setShowModalAddTransaction(false);
+        }
       }
     } catch (error) {
-      console.error("Error when creating a transaction", error);
-      toast.error("Có lỗi khi thêm giao dịch", {
-        position: toast.POSITION.TOP_RIGHT,
-      });
     }
   };
 
@@ -211,19 +211,34 @@ const Transactions: React.FC = () => {
       const editedTransactionIndex = updatedTransactionData.findIndex(
         (vivi) => vivi.id === selectedTransaction.id
       );
+
       if (editedTransactionIndex !== -1) {
-        updatedTransactionData[editedTransactionIndex].id =
-          editFromPaymentAccountId;
+        // Đừng thay đổi giá trị của 'id' của giao dịch khi cập nhật
+        // updatedTransactionData[editedTransactionIndex].id = editFromPaymentAccountId;
+
         try {
-          await transactionsApi.update(
-            selectedTransaction.id,
-            updatedTransactionData[editedTransactionIndex]
+          const response = await dispatch(
+            transactionsApi.update({
+              id: selectedTransaction.id,
+              data: updatedTransactionData[editedTransactionIndex],
+            })
           );
-          dispatch(transactionActions.setTransactions(updatedTransactionData));
-          setModalUpdateTransaction(false);
-          toast.success("Thông tin ví đã được cập nhật thành công.", {
-            position: toast.POSITION.TOP_RIGHT,
-          });
+
+          if (transactionsApi.update.fulfilled.match(response)) {
+            const responseData = response.payload; // Dữ liệu phản hồi từ createAsyncThunk
+
+            dispatch(
+              transactionActions.setTransactions(updatedTransactionData)
+            );
+            setModalUpdateTransaction(false);
+            toast.success("Thông tin ví đã được cập nhật thành công.", {
+              position: toast.POSITION.TOP_RIGHT,
+            });
+          } else {
+            toast.error("Không thể cập nhật thông tin ví.", {
+              position: toast.POSITION.TOP_RIGHT,
+            });
+          }
         } catch (error) {
           toast.error("Không thể cập nhật thông tin ví.", {
             position: toast.POSITION.TOP_RIGHT,
@@ -632,6 +647,7 @@ const Transactions: React.FC = () => {
               size="lg"
               className="m-2"
               value={editTransactionDate}
+              // defaultValue={currentDate}
               onChange={(e) => setEditTransactionDate(e.target.value)}
             />
             <Form.Control
