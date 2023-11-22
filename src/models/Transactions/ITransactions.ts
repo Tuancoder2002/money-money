@@ -6,7 +6,7 @@ export interface ITransactionsModel {
   transactionDate?: string;
   fromPaymentAccountId?: string;
   fromPaymentAccountName?: string;
-  ategoryId?: string;
+  categoryId?: string;
   categoryName?: string;
   description?: string;
 }

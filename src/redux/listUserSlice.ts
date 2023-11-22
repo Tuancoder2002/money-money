@@ -2,9 +2,10 @@
 import { createSelector, createSlice } from "@reduxjs/toolkit";
 import { IPaymentAccountModel } from "../models/PaymentAccounts/IPaymentAccount";
 import { RootState } from "./store";
+import { IPaymentAccountView } from "../models/PaymentAccounts/IPaymentAccountView";
 
 interface ListUserState {
-  selectedVivi: IPaymentAccountModel | null;
+  selectedVivi: IPaymentAccountView | null;
 }
 
 const initialState: ListUserState = {
@@ -21,9 +22,14 @@ const listUserSlice = createSlice({
   },
 });
 
-export const selectSelectedVivi = createSelector(
+export const selectSelectedViviId = createSelector(
   [(state: RootState) => state.listUser.selectedVivi?.id],
   (id) => id
+);
+
+export const selectSelectedVivi = createSelector(
+  [(state: RootState) => state.listUser.selectedVivi],
+  (selectedVivi) => selectedVivi
 );
 
 export const { setSelectedVivi } = listUserSlice.actions;

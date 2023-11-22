@@ -10,7 +10,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../../redux/store";
 import { hideModal } from "../../../redux/modalSlice";
 import UncontrolledExample from "../Carousel";
-import { selectSelectedVivi } from "../../../redux/listUserSlice";
+import { selectSelectedVivi, selectSelectedViviId } from "../../../redux/listUserSlice";
 import {
   selectMoneyLastMonth,
   selectMoneyNowMonth,
@@ -24,15 +24,21 @@ import {
   paymentAccountActions,
   selectPaymentAccountViews,
 } from "../../../redux/paymentAccountReducer";
+import { selectSelectedCategories, transactionCategoriesAction } from "../../../redux/transactionCategoriesReducer";
+import transactionCategoriesApi from "../../../apis/transactionCategoriesApi";
+import cloneDeep from 'lodash/cloneDeep';
 
 const Transactions: React.FC = () => {
-  const currentDate = new Date().toISOString().slice(0, 16);
+  const currentDate = new Date().toLocaleString("sv")
+  console.log("ngày",new Date(), new Date().toISOString().slice(0, 16) )
   const transactionData = useSelector(selectTransactions);
   const moneyLastMonth = useSelector(selectMoneyLastMonth);
-  const moneyNowMonth = useSelector(selectMoneyNowMonth);
+  const moneyNowMonth = useSelector(selectMoneyNowMonth); 
   const [selectedTransaction, setSelectedTransaction] =
     useState<ITransactionsModel | null>(null);
+
   const viviData = useSelector(selectPaymentAccountViews);
+  const transactionCategories = useSelector(selectSelectedCategories);
   // const [showTransactionDetails, setShowTransactionDetails] = useState(false);
   // const handleShowDetails = (vivi: ITransactionsModel) => {
   //   setSelectedTransaction(vivi);
@@ -44,7 +50,8 @@ const Transactions: React.FC = () => {
 
   const [editTransactionAmount, setEditTransactionAmount] = useState(0);
   const [editFromPaymentAccountId, setFromPaymentAccountId] = useState("");
-  const [editTransactionDate, setEditTransactionDate] = useState("");
+  const [editCategoryId, setCategoryId] = useState("");
+  const [editTransactionDate, setEditTransactionDate] = useState(currentDate);
   const [editTransactionDescription, setEditTransactionDescription] =
     useState("");
   const [collapsedLast, setCollapsedLast] = useState(true);
@@ -53,10 +60,11 @@ const Transactions: React.FC = () => {
   const toggleTransactionsLast = () => setCollapsedLast(!collapsedLast);
   const toggleTransactionsNow = () => setCollapsedNow(!collapsedNow);
 
-  const accountIdToFilter = useSelector(selectSelectedVivi);
+  const accountIdToFilter = useSelector(selectSelectedViviId);
   const totalMoney = useSelector(selectTotalMoney);
 
   useEffect(() => {
+    fetchTransactionData()
     const { moneyLastMonthInByAccount, moneyLastMonthOutByAccount } =
       transactionData.reduce(
         (totals, vivi) => {
@@ -145,18 +153,21 @@ const Transactions: React.FC = () => {
 
         dispatch(transactionActions.setTransactions(responseData));
 
-        const tongChiTieu = responseData.reduce(function (current, next) {
+        const tongChiTieu = responseData.filter(e => e.fromPaymentAccountId === accountIdToFilter).reduce(function (current, next) {
           return current + next.amount;
         }, 0);
 
         // Todo: Lấy tài khoản thanh toán hiện tại dựa trên logic cụ thể
-        let currentPaymentAccount = viviData.find((v) => v.id === accountIdToFilter);
-        console.log("hello",currentPaymentAccount)
-        if (currentPaymentAccount != null) {
-          currentPaymentAccount.currentMoney =
-            currentPaymentAccount.initialMoney + tongChiTieu;
+        let currentPaymentAccount = cloneDeep(viviData.find((v) => v.id === accountIdToFilter))
+        console.log("hello", currentPaymentAccount)
+        if(currentPaymentAccount){
+          
+          if (currentPaymentAccount != null) {
+            currentPaymentAccount.currentMoney =
+              currentPaymentAccount.initialMoney + tongChiTieu;
+          }
+          dispatch(paymentAccountActions.setOrUpdatePaymentAccountView(currentPaymentAccount));
         }
-        dispatch(paymentAccountActions.setOrUpdatePaymentAccountView);
       }
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu", error);
@@ -176,9 +187,25 @@ const Transactions: React.FC = () => {
       console.error("Lỗi khi lấy dữ liệu ví:", error);
     }
   };
+
+  const fetchCategories = async () => {
+    try {
+      dispatch(transactionCategoriesApi.getAll({}))
+        .unwrap()
+        .then((response) => {
+          console.log("transactionCategoriesApi.getAll", response)
+          dispatch(transactionCategoriesAction.setTransactionCategories(response.data));
+        })
+        .catch((error) => {});
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu ví:", error);
+    }
+  };
+ 
   useEffect(() => {
     fetchViviData();
     fetchTransactionData();
+    fetchCategories();
   }, []);
 
   const handleAddTransactions = async () => {
@@ -186,6 +213,7 @@ const Transactions: React.FC = () => {
       amount: editTransactionAmount,
       transactionDate: editTransactionDate,
       fromPaymentAccountId: editFromPaymentAccountId,
+      categoryId: editCategoryId,
       description: editTransactionDescription,
     };
 
@@ -614,7 +642,7 @@ const Transactions: React.FC = () => {
               onChange={(e) => setFromPaymentAccountId(e.target.value)}
             >
               <option>Ví</option>
-              {viviData.map((vivi, index) => (
+              {viviData && viviData.map((vivi, index) => (
                 <option value={vivi.id} key={vivi.id}>
                   {vivi.name}
                 </option>
@@ -624,10 +652,17 @@ const Transactions: React.FC = () => {
               size="lg"
               aria-label="Default select example"
               className="m-2"
+              value={editCategoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
             >
               <option>Nhóm</option>
+              {transactionCategories && transactionCategories.map((categories, index) => (
+                <option value={categories.id} key={categories.id}>
+                  {categories.name}
+                </option>
+              ))}
 
-              <option value="1"></option>
+           
             </Form.Select>
             <Form.Control
               name="amount"
@@ -688,7 +723,7 @@ const Transactions: React.FC = () => {
               onChange={(e) => setFromPaymentAccountId(e.target.value)}
             >
               <option>Ví</option>
-              {viviData.map((vivi, index) => (
+              {viviData && viviData.map((vivi, index) => (
                 <option value={vivi.id} key={vivi.id}>
                   {vivi.name}
                 </option>

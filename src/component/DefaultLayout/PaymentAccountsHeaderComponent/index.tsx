@@ -15,22 +15,24 @@ import { transactionActions } from "../../../redux/transactionReducer";
 
 interface PaymentAccountsProps {
   closeModal: () => void;
-  updateHeaderData: (vivi: IPaymentAccountModel) => void; // Thêm prop này
+  isShow: boolean;
 }
 
 const PaymentAccountsHeaderComponent: React.FC<PaymentAccountsProps> = ({
   closeModal,
-  updateHeaderData,
+  isShow
 }) => {
   const dispatch = useAppDispatch();
 
   const viviData = useSelector(selectPaymentAccountViews);
+  useEffect(() => {
+    
+    console.log("viviData change", viviData)
+  }, [viviData]) 
   
   const handleViviClick = (vivi: IPaymentAccountModel) => {
     closeModal(); // Đóng modal ListUser
     dispatch(setSelectedVivi(vivi));
-    updateHeaderData(vivi); // Gọi hàm updateHeaderData để cập nhật dữ liệu trên thanh tiêu đề
-    console.log("bye", updateHeaderData(vivi))
   };
   // Hàm này sẽ gọi API để lấy danh sách ví và cập nhật vào state khi component được render.
   const fetchData = async () => {
@@ -38,7 +40,6 @@ const PaymentAccountsHeaderComponent: React.FC<PaymentAccountsProps> = ({
       dispatch(paymentAccountApi.getAll({}))
         .unwrap()
         .then((response) => {
-          console.log("PaymentAccountsHeaderComponent", response);
           dispatch(paymentAccountActions.setPaymentAccountViews(response.data));
         })
         .catch((error) => {});
@@ -75,10 +76,11 @@ const PaymentAccountsHeaderComponent: React.FC<PaymentAccountsProps> = ({
     <div
       style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0 }}
       onClick={handleBackdropClick}
+      hidden={!isShow}
     >
-      <div style={modalStyle}>
+      <div style={modalStyle} >
         <div>
-          {viviData.map((vivi, index) => {
+          {viviData && viviData.map((vivi, index) => {
             console.log(`render payment account ${index}: ${vivi.name}`);
             return (
               <div
@@ -112,7 +114,7 @@ const PaymentAccountsHeaderComponent: React.FC<PaymentAccountsProps> = ({
                       {vivi.name}
                     </span>
                     <span className="m-0" style={{ fontSize: "12px" }}>
-                      {vivi.initialMoney}
+                      {vivi.currentMoney ?? vivi.initialMoney}
                     </span>
                   </div>
                 </div>

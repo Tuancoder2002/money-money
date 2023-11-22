@@ -64,25 +64,25 @@ function ListWalletsUser() {
     if (selectedVivi) {
       const accountId = selectedVivi.id;
       if (accountId) {
-        paymentAccountApi
-          .delete(accountId)
-          .then((res) => {
-            toast.success("Đã xoá tài khoản thành công.", {
-              position: toast.POSITION.TOP_RIGHT,
-            });
-            dispatch(paymentAccountApi.getAll({}))
-              .unwrap()
-              .then((response) => {
-                paymentAccountActions.setPaymentAccountViews(response.data);
+        // paymentAccountApi
+        //   .delete(accountId)
+        //   .then((res) => {
+        //     toast.success("Đã xoá tài khoản thành công.", {
+        //       position: toast.POSITION.TOP_RIGHT,
+        //     });
+        //     dispatch(paymentAccountApi.getAll({}))
+        //       .unwrap()
+        //       .then((response) => {
+        //         paymentAccountActions.setPaymentAccountViews(response.data);
 
-                setShowViviDetails(false);
-              });
-          })
-          .catch((error) => {
-            toast.error("Lỗi khi xoá tài khoản.", {
-              position: toast.POSITION.TOP_RIGHT,
-            });
-          });
+        //         setShowViviDetails(false);
+        //       });
+        //   })
+        //   .catch((error) => {
+        //     toast.error("Lỗi khi xoá tài khoản.", {
+        //       position: toast.POSITION.TOP_RIGHT,
+        //     });
+        //   });
       }
     }
   };
@@ -99,15 +99,15 @@ function ListWalletsUser() {
           parseFloat(editViviAmount);
       }
       try {
-        await paymentAccountApi.update(
-          selectedVivi.id,
-          updatedViviData[editedViviIndex]
-        );
-        paymentAccountActions.setPaymentAccountViews(updatedViviData);
-        setShowEditModal(false);
-        toast.success("Thông tin ví đã được cập nhật thành công.", {
-          position: toast.POSITION.TOP_RIGHT,
-        });
+        // await paymentAccountApi.update(
+        //   selectedVivi.id,
+        //   updatedViviData[editedViviIndex]
+        // );
+        // paymentAccountActions.setPaymentAccountViews(updatedViviData);
+        // setShowEditModal(false);
+        // toast.success("Thông tin ví đã được cập nhật thành công.", {
+        //   position: toast.POSITION.TOP_RIGHT,
+        // });
       } catch (error) {
         toast.error("Không thể cập nhật thông tin ví.", {
           position: toast.POSITION.TOP_RIGHT,
@@ -127,19 +127,19 @@ function ListWalletsUser() {
     };
 
     try {
-      const response = await paymentAccountApi.create(newVivi);
-      if (response.id != null) {
-        const updatedViviData = [...viviData, response];
-        paymentAccountActions.setPaymentAccountViews(updatedViviData);
-        setShowModalAddWallet(false);
-        toast.success("Tạo ví thành công.", {
-          position: toast.POSITION.TOP_RIGHT,
-        });
-      } else {
-        toast.error("Có lỗi khi tạo ví.", {
-          position: toast.POSITION.TOP_RIGHT,
-        });
-      }
+      // const response = await paymentAccountApi.create(newVivi);
+      // if (response.id != null) {
+      //   const updatedViviData = [...viviData, response];
+      //   paymentAccountActions.setPaymentAccountViews(updatedViviData);
+      //   setShowModalAddWallet(false);
+      //   toast.success("Tạo ví thành công.", {
+      //     position: toast.POSITION.TOP_RIGHT,
+      //   });
+      // } else {
+      //   toast.error("Có lỗi khi tạo ví.", {
+      //     position: toast.POSITION.TOP_RIGHT,
+      //   });
+      // }
     } catch (error) {
       toast.error("Có lỗi khi tạo ví.", {
         position: toast.POSITION.TOP_RIGHT,

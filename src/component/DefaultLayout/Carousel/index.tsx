@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 function UncontrolledExample() {
   const carouselItemStyle = {
-    height: '200px', // Đặt chiều cao của mỗi phần tử Carousel
+    height: '250px', // Đặt chiều cao của mỗi phần tử Carousel
     boxShadow: '0 0 10px #ccc !important',
   borderRadius: '10px !important',
   };
