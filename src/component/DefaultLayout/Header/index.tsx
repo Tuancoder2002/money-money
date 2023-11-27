@@ -15,6 +15,7 @@ import {
   CalendarDateFill,
   CaretDownFill,
   ChevronRight,
+  EmojiFrown,
   EyeFill,
   List,
   PersonFill,
@@ -39,7 +40,7 @@ import { showModal } from "../../../redux/modalSlice";
 import PaymentAccountsHeaderComponent from "../PaymentAccountsHeaderComponent";
 import { IPaymentAccountView } from "../../../models/PaymentAccounts/IPaymentAccountView";
 import { selectPaymentAccountViews, selectSelectedPaymentAccountView } from "../../../redux/paymentAccountReducer";
-import { selectSelectedVivi } from "../../../redux/listUserSlice";
+import { selectSelectedVivi, setSelectedVivi } from "../../../redux/listUserSlice";
 
 const cx = classNames.bind(styles);
 
@@ -58,6 +59,7 @@ function Header() {
   useEffect(() =>{
     setHeaderData(paymentAccountViews.find(e => e.id === selectedVivi?.id));
   },[selectedVivi,paymentAccountViews])
+
   const handleIconClick = () => {
     setShowDatePicker(true);
   };
@@ -118,26 +120,29 @@ function Header() {
           backgroundColor: "rgba(54, 19, 84, 0.8)",
           color: "#fff",
         }}
+       
         className="d-flex justify-content-evenly"
       >
         <List onClick={toggleNavbar} size={24} className={cx("m-2", "icon")} />
         <img
-          src={headerData?.icon}
+          
+          src={headerData?.icon || 'icon.png'}
           alt="Avatar"
           className={cx("avatar", "m-2")}
           style={{ borderRadius: "50%", height: "35px", width: "35px" }}
         />
         <NavbarBrand
           className="me-auto"
-          style={{ fontSize: "12px", color: "#fff" }}
+          style={{ fontSize: "12px", color: "#fff",  cursor: "pointer", }}
+          onClick={openModalListUser}
         >
         
-          {headerData?.name},
+          {headerData?.name || 'Chưa chọn ví'}
           
           <CaretDownFill
             size={10}
             className={cx("m-2", "icon")}
-            onClick={openModalListUser}
+            
           />
           <div
             style={{
@@ -147,7 +152,7 @@ function Header() {
               fontWeight: "bold",
             }}
           >
-            {headerData?.currentMoney && headerData?.initialMoney}
+            {headerData?.currentMoney || headerData?.initialMoney || 'Hãy chọn ví'}
           </div>
         </NavbarBrand>
         <CalendarDateFill
@@ -173,6 +178,7 @@ function Header() {
         )}
 
         <EyeFill size={20} className={cx("m-2", "icon")} />
+
 
         <Search size={20} className={cx("m-2", "icon")} />
         <Button onClick={handleButtonClick} variant="success" className="m-2">

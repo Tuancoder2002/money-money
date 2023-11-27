@@ -12,6 +12,9 @@ import { useSelector } from "react-redux";
 import { IFilterBodyRequest } from "../../../models/Bases/IFilterBodyRequest";
 import transactionsApi from "../../../apis/transactionsApi";
 import { transactionActions } from "../../../redux/transactionReducer";
+import { FilterType } from "../../../models/Bases/FilterType";
+import { FilterLogicalOperator } from "../../../models/Bases/FilterLogicalOperator";
+import { SortDirection } from "../../../models/Bases/SortDirection";
 
 interface PaymentAccountsProps {
   closeModal: () => void;
@@ -81,7 +84,7 @@ const PaymentAccountsHeaderComponent: React.FC<PaymentAccountsProps> = ({
       <div style={modalStyle} >
         <div>
           {viviData && viviData.map((vivi, index) => {
-            console.log(`render payment account ${index}: ${vivi.name}`);
+            console.log(`render payment account ${index}: ${vivi.currentMoney}`);
             return (
               <div
                 key={vivi.id}
@@ -91,6 +94,7 @@ const PaymentAccountsHeaderComponent: React.FC<PaymentAccountsProps> = ({
                   backgroundColor: "rgba(73, 231, 210, 0.8)",
                   transition: "background-color 0.3s",
                   borderRadius: "20px",
+                  color:"#fff"
                 }}
                 onClick={() => handleViviClick(vivi)}
                 onMouseOver={(e) =>
@@ -114,7 +118,7 @@ const PaymentAccountsHeaderComponent: React.FC<PaymentAccountsProps> = ({
                       {vivi.name}
                     </span>
                     <span className="m-0" style={{ fontSize: "12px" }}>
-                      {vivi.currentMoney ?? vivi.initialMoney}
+                      {vivi.currentMoney}
                     </span>
                   </div>
                 </div>

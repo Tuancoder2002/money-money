@@ -10,7 +10,10 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../../redux/store";
 import { hideModal } from "../../../redux/modalSlice";
 import UncontrolledExample from "../Carousel";
-import { selectSelectedVivi, selectSelectedViviId } from "../../../redux/listUserSlice";
+import {
+  selectSelectedVivi,
+  selectSelectedViviId,
+} from "../../../redux/listUserSlice";
 import {
   selectMoneyLastMonth,
   selectMoneyNowMonth,
@@ -24,16 +27,23 @@ import {
   paymentAccountActions,
   selectPaymentAccountViews,
 } from "../../../redux/paymentAccountReducer";
-import { selectSelectedCategories, transactionCategoriesAction } from "../../../redux/transactionCategoriesReducer";
+import {
+  selectSelectedCategories,
+  transactionCategoriesAction,
+} from "../../../redux/transactionCategoriesReducer";
 import transactionCategoriesApi from "../../../apis/transactionCategoriesApi";
-import cloneDeep from 'lodash/cloneDeep';
+import cloneDeep from "lodash/cloneDeep";
+import { EmojiFrown } from "react-bootstrap-icons";
+import { FilterLogicalOperator } from "../../../models/Bases/FilterLogicalOperator";
+import { FilterType } from "../../../models/Bases/FilterType";
+import { SortDirection } from "../../../models/Bases/SortDirection";
 
 const Transactions: React.FC = () => {
-  const currentDate = new Date().toLocaleString("sv")
-  console.log("ngày",new Date(), new Date().toISOString().slice(0, 16) )
+  const currentDate = new Date().toLocaleString("sv");
+  console.log("ngày", new Date(), new Date().toISOString().slice(0, 16));
   const transactionData = useSelector(selectTransactions);
   const moneyLastMonth = useSelector(selectMoneyLastMonth);
-  const moneyNowMonth = useSelector(selectMoneyNowMonth); 
+  const moneyNowMonth = useSelector(selectMoneyNowMonth);
   const [selectedTransaction, setSelectedTransaction] =
     useState<ITransactionsModel | null>(null);
 
@@ -64,7 +74,7 @@ const Transactions: React.FC = () => {
   const totalMoney = useSelector(selectTotalMoney);
 
   useEffect(() => {
-    fetchTransactionData()
+    fetchTransactionData();
     const { moneyLastMonthInByAccount, moneyLastMonthOutByAccount } =
       transactionData.reduce(
         (totals, vivi) => {
@@ -145,7 +155,32 @@ const Transactions: React.FC = () => {
 
   const fetchTransactionData = async () => {
     try {
-      const request: IFilterBodyRequest = {};
+      
+      var request: IFilterBodyRequest = {
+        filter: {
+          logicalOperator: FilterLogicalOperator.And,
+          details: [
+            {
+              attributeName: "transactionDate",
+              value: "2023-1-1",
+              filterType: FilterType.GreaterThanOrEqual
+            },
+            {
+              attributeName: "transactionDate",
+              value: "2024-1-1",
+              filterType: FilterType.LessThan
+            }
+          ]
+        },
+        orders: [
+          {
+            field: "transactionDate",
+            direction: SortDirection.Asc
+          }
+        ],
+        pagination: {
+        }
+      }
       const response = await dispatch(transactionsApi.getAll(request));
 
       if (transactionsApi.getAll.fulfilled.match(response)) {
@@ -153,20 +188,27 @@ const Transactions: React.FC = () => {
 
         dispatch(transactionActions.setTransactions(responseData));
 
-        const tongChiTieu = responseData.filter(e => e.fromPaymentAccountId === accountIdToFilter).reduce(function (current, next) {
-          return current + next.amount;
-        }, 0);
+        const tongChiTieu = responseData
+          .filter((e) => e.fromPaymentAccountId === accountIdToFilter)
+          .reduce(function (current, next) {
+            return current + next.amount;
+          }, 0);
 
         // Todo: Lấy tài khoản thanh toán hiện tại dựa trên logic cụ thể
-        let currentPaymentAccount = cloneDeep(viviData.find((v) => v.id === accountIdToFilter))
-        console.log("hello", currentPaymentAccount)
-        if(currentPaymentAccount){
-          
+        let currentPaymentAccount = cloneDeep(
+          viviData.find((v) => v.id === accountIdToFilter)
+        );
+        console.log("hello", currentPaymentAccount);
+        if (currentPaymentAccount) {
           if (currentPaymentAccount != null) {
             currentPaymentAccount.currentMoney =
               currentPaymentAccount.initialMoney + tongChiTieu;
           }
-          dispatch(paymentAccountActions.setOrUpdatePaymentAccountView(currentPaymentAccount));
+          dispatch(
+            paymentAccountActions.setOrUpdatePaymentAccountView(
+              currentPaymentAccount
+            )
+          );
         }
       }
     } catch (error) {
@@ -193,15 +235,17 @@ const Transactions: React.FC = () => {
       dispatch(transactionCategoriesApi.getAll({}))
         .unwrap()
         .then((response) => {
-          console.log("transactionCategoriesApi.getAll", response)
-          dispatch(transactionCategoriesAction.setTransactionCategories(response.data));
+          console.log("transactionCategoriesApi.getAll", response);
+          dispatch(
+            transactionCategoriesAction.setTransactionCategories(response.data)
+          );
         })
         .catch((error) => {});
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu ví:", error);
     }
   };
- 
+
   useEffect(() => {
     fetchViviData();
     fetchTransactionData();
@@ -229,8 +273,7 @@ const Transactions: React.FC = () => {
           setShowModalAddTransaction(false);
         }
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const handleSaveViviDetails = async () => {
@@ -297,6 +340,10 @@ const Transactions: React.FC = () => {
     (state: RootState) => state.listUser.selectedVivi?.initialMoney ?? 0
   );
 
+  const money = totalMoney +
+    moneyNowMonth.in +
+    moneyNowMonth.out;
+
   return (
     <div>
       <div className="container mt-5">
@@ -320,6 +367,7 @@ const Transactions: React.FC = () => {
                         className={`${"custom-tab-title"} custom-active-tab`}
                         style={{ fontSize: "16px" }}
                       >
+                
                         THÁNG TRƯỚC
                       </span>
                     }
@@ -417,9 +465,7 @@ const Transactions: React.FC = () => {
                                 {/* {(initialMoney ? moneyNowMonthInByAccount : 0) +
                                   (initialMoney ? moneyNowMonthOutByAccount : 0) +
                                   (initialMoney ?? 0)} */}
-                                {totalMoney +
-                                  moneyNowMonth.in +
-                                  moneyNowMonth.out}
+                                {money}
                               </span>
                             </span>
                           </li>
@@ -461,35 +507,20 @@ const Transactions: React.FC = () => {
                           style={{ fontSize: "14px" }}
                         >
                           <li>
-                            <span className="p-1 d-flex justify-content-between">
-                              <span>Tiền vào</span>
-                              <span className="text-primary">3.000.000</span>
+                            <span className="p-1 d-flex justify-content-center">
+                              <EmojiFrown size={120} className="m-2 icon" />
                             </span>
                           </li>
                           <li>
-                            <span className="p-1 d-flex justify-content-between">
-                              <span>Tiền ra</span>
-                              <span className="text-danger">300.000</span>
-                            </span>
-                          </li>
-                          <li>
-                            <span className="p-1 d-flex justify-content-between">
-                              <span></span>
-                              <span className="" style={{ color: "#fff" }}>
-                                + 2.700.000
-                              </span>
-                            </span>
-                          </li>
-                          <li>
-                            <span
-                              className="p-1 d-flex justify-content-center text-success"
-                              onClick={toggleTransactionsNow}
-                            >
+                            <span className="p-1 d-flex justify-content-center text-success">
                               <span
                                 className="nav-link"
-                                style={{ color: "#2db84c", cursor: "pointer" }}
+                                style={{
+                                  color: "#2db84c",
+                                  cursor: "pointer",
+                                }}
                               >
-                                XEM BÁO CÁO CHO GIAI ĐOẠN NÀY
+                                CHƯA CÓ GIAO DỊCH CHO GIAI ĐOẠN NÀY
                               </span>
                             </span>
                           </li>
@@ -497,6 +528,7 @@ const Transactions: React.FC = () => {
                       </Col>
                     </Row>
                   </Tab>
+                  
                 </Tabs>
                 {/* ******************************************************************************************************** */}
                 <Collapse isOpen={!collapsedLast} navbar>
@@ -642,11 +674,12 @@ const Transactions: React.FC = () => {
               onChange={(e) => setFromPaymentAccountId(e.target.value)}
             >
               <option>Ví</option>
-              {viviData && viviData.map((vivi, index) => (
-                <option value={vivi.id} key={vivi.id}>
-                  {vivi.name}
-                </option>
-              ))}
+              {viviData &&
+                viviData.map((vivi, index) => (
+                  <option value={vivi.id} key={vivi.id}>
+                    {vivi.name}
+                  </option>
+                ))}
             </Form.Select>
             <Form.Select
               size="lg"
@@ -656,13 +689,12 @@ const Transactions: React.FC = () => {
               onChange={(e) => setCategoryId(e.target.value)}
             >
               <option>Nhóm</option>
-              {transactionCategories && transactionCategories.map((categories, index) => (
-                <option value={categories.id} key={categories.id}>
-                  {categories.name}
-                </option>
-              ))}
-
-           
+              {transactionCategories &&
+                transactionCategories.map((categories, index) => (
+                  <option value={categories.id} key={categories.id}>
+                    {categories.name}
+                  </option>
+                ))}
             </Form.Select>
             <Form.Control
               name="amount"
@@ -723,11 +755,12 @@ const Transactions: React.FC = () => {
               onChange={(e) => setFromPaymentAccountId(e.target.value)}
             >
               <option>Ví</option>
-              {viviData && viviData.map((vivi, index) => (
-                <option value={vivi.id} key={vivi.id}>
-                  {vivi.name}
-                </option>
-              ))}
+              {viviData &&
+                viviData.map((vivi, index) => (
+                  <option value={vivi.id} key={vivi.id}>
+                    {vivi.name}
+                  </option>
+                ))}
             </Form.Select>
             <Form.Select
               size="lg"
