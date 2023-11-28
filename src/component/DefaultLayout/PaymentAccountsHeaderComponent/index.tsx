@@ -118,7 +118,7 @@ const PaymentAccountsHeaderComponent: React.FC<PaymentAccountsProps> = ({
                       {vivi.name}
                     </span>
                     <span className="m-0" style={{ fontSize: "12px" }}>
-                      {vivi.currentMoney}
+                      {vivi.currentMoney?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </span>
                   </div>
                 </div>

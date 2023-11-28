@@ -110,6 +110,7 @@ function Header() {
   const handleButtonClick = () => {
     dispatch(showModal());
   };
+  console.log(headerData);
 
   return (
     <div className="wraper-header">
@@ -152,7 +153,8 @@ function Header() {
               fontWeight: "bold",
             }}
           >
-            {headerData?.currentMoney || headerData?.initialMoney || 'Hãy chọn ví'}
+           {headerData?.currentMoney?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0, maximumFractionDigits: 0 }) || headerData?.initialMoney?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0, maximumFractionDigits: 0 }) || 'Hãy chọn ví'}
+
           </div>
         </NavbarBrand>
         <CalendarDateFill

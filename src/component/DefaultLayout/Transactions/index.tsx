@@ -155,7 +155,6 @@ const Transactions: React.FC = () => {
 
   const fetchTransactionData = async () => {
     try {
-      
       var request: IFilterBodyRequest = {
         filter: {
           logicalOperator: FilterLogicalOperator.And,
@@ -163,24 +162,23 @@ const Transactions: React.FC = () => {
             {
               attributeName: "transactionDate",
               value: "2023-1-1",
-              filterType: FilterType.GreaterThanOrEqual
+              filterType: FilterType.GreaterThanOrEqual,
             },
             {
               attributeName: "transactionDate",
               value: "2024-1-1",
-              filterType: FilterType.LessThan
-            }
-          ]
+              filterType: FilterType.LessThan,
+            },
+          ],
         },
         orders: [
           {
             field: "transactionDate",
-            direction: SortDirection.Asc
-          }
+            direction: SortDirection.Asc,
+          },
         ],
-        pagination: {
-        }
-      }
+        pagination: {},
+      };
       const response = await dispatch(transactionsApi.getAll(request));
 
       if (transactionsApi.getAll.fulfilled.match(response)) {
@@ -199,6 +197,7 @@ const Transactions: React.FC = () => {
           viviData.find((v) => v.id === accountIdToFilter)
         );
         console.log("hello", currentPaymentAccount);
+
         if (currentPaymentAccount) {
           if (currentPaymentAccount != null) {
             currentPaymentAccount.currentMoney =
@@ -340,9 +339,7 @@ const Transactions: React.FC = () => {
     (state: RootState) => state.listUser.selectedVivi?.initialMoney ?? 0
   );
 
-  const money = totalMoney +
-    moneyNowMonth.in +
-    moneyNowMonth.out;
+  const money = totalMoney + moneyNowMonth.in + moneyNowMonth.out;
 
   return (
     <div>
@@ -367,7 +364,6 @@ const Transactions: React.FC = () => {
                         className={`${"custom-tab-title"} custom-active-tab`}
                         style={{ fontSize: "16px" }}
                       >
-                
                         THÁNG TRƯỚC
                       </span>
                     }
@@ -382,7 +378,16 @@ const Transactions: React.FC = () => {
                             <span className="p-1 d-flex justify-content-between">
                               <span>Tiền vào:</span>
                               <span className="text-success">
-                                + {initialMoney ? moneyLastMonth.in : 0}
+                                +{" "}
+                                {(initialMoney
+                                  ? moneyLastMonth.in
+                                  : 0
+                                ).toLocaleString("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 0,
+                                })}
                               </span>
                             </span>
                           </li>
@@ -390,7 +395,15 @@ const Transactions: React.FC = () => {
                             <span className="p-1 d-flex justify-content-between">
                               <span>Tiền ra:</span>
                               <span className="text-danger">
-                                {initialMoney ? moneyLastMonth.out : 0}
+                                {(initialMoney
+                                  ? moneyLastMonth.out
+                                  : 0
+                                ).toLocaleString("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 0,
+                                })}
                               </span>
                             </span>
                           </li>
@@ -401,7 +414,13 @@ const Transactions: React.FC = () => {
                                 {/* {(initialMoney ? moneyLastMonthInByAccount : 0) +
                                   (initialMoney ? moneyLastMonthOutByAccount : 0) +
                                   (initialMoney ?? 0)} */}
-                                {totalMoney}
+
+                                {totalMoney.toLocaleString("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 0,
+                                })}
                               </span>
                             </span>
                           </li>
@@ -446,7 +465,16 @@ const Transactions: React.FC = () => {
                             <span className="p-1 d-flex justify-content-between">
                               <span>Tiền vào:</span>
                               <span className="text-success">
-                                + {initialMoney ? moneyNowMonth.in : 0}
+                                +{" "}
+                                {(initialMoney
+                                  ? moneyNowMonth.in
+                                  : 0
+                                ).toLocaleString("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 0,
+                                })}
                               </span>
                             </span>
                           </li>
@@ -454,7 +482,15 @@ const Transactions: React.FC = () => {
                             <span className="p-1 d-flex justify-content-between">
                               <span>Tiền ra:</span>
                               <span className="text-danger">
-                                {initialMoney ? moneyNowMonth.out : 0}
+                                {(initialMoney
+                                  ? moneyNowMonth.out
+                                  : 0
+                                ).toLocaleString("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 0,
+                                })}
                               </span>
                             </span>
                           </li>
@@ -465,7 +501,12 @@ const Transactions: React.FC = () => {
                                 {/* {(initialMoney ? moneyNowMonthInByAccount : 0) +
                                   (initialMoney ? moneyNowMonthOutByAccount : 0) +
                                   (initialMoney ?? 0)} */}
-                                {money}
+                                {money.toLocaleString("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 0,
+                                })}
                               </span>
                             </span>
                           </li>
@@ -528,7 +569,6 @@ const Transactions: React.FC = () => {
                       </Col>
                     </Row>
                   </Tab>
-                  
                 </Tabs>
                 {/* ******************************************************************************************************** */}
                 <Collapse isOpen={!collapsedLast} navbar>
@@ -577,7 +617,12 @@ const Transactions: React.FC = () => {
                                 <span
                                   style={{ color: "#fff", fontSize: "14px" }}
                                 >
-                                  {vivi.amount}
+                                  {vivi.amount.toLocaleString("vi-VN", {
+                                    style: "currency",
+                                    currency: "VND",
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0,
+                                  })}
                                 </span>
                                 <span
                                   style={{ color: "#e94b4b", fontSize: "14px" }}
@@ -639,7 +684,12 @@ const Transactions: React.FC = () => {
                                 <span
                                   style={{ color: "#fff", fontSize: "14px" }}
                                 >
-                                  {vivi.amount}
+                                  {vivi.amount.toLocaleString("vi-VN", {
+                                    style: "currency",
+                                    currency: "VND",
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0,
+                                  })}
                                 </span>
                                 <span
                                   style={{ color: "#e94b4b", fontSize: "14px" }}
@@ -698,12 +748,25 @@ const Transactions: React.FC = () => {
             </Form.Select>
             <Form.Control
               name="amount"
-              type="number"
+              type="text"
               placeholder="Số tiền"
               size="lg"
               className="m-2"
-              value={editTransactionAmount}
-              onChange={(e) => setEditTransactionAmount(+e.target.value)}
+              value={editTransactionAmount.toLocaleString("vi-VN", {
+                style: "currency",
+                currency: "VND",
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              })}
+              onChange={(e) => {
+                const inputText = e.target.value;
+                const sanitizedText = inputText.replace(/[^\d]/g, ""); // Chỉ giữ lại số
+                const parsedAmount = parseInt(sanitizedText, 10);
+
+                if (!isNaN(parsedAmount)) {
+                  setEditTransactionAmount(parsedAmount);
+                }
+              }}
             />
           </div>
 

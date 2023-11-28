@@ -198,7 +198,7 @@ function ListWalletsUser() {
                   {vivi.name}
                 </span>
                 <span className="m-0" style={{ fontSize: "16px" }}>
-                  {vivi.initialMoney}
+                  {vivi.initialMoney.toLocaleString('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                 </span>
               </div>
             </div>
@@ -253,7 +253,7 @@ function ListWalletsUser() {
                     {selectedVivi.name}
                   </span>
                   <span style={{ fontSize: "13px" }}>
-                    {selectedVivi.initialMoney} Việt Nam Đồng
+                    {selectedVivi.initialMoney.toLocaleString('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0, maximumFractionDigits: 0 })} Việt Nam Đồng
                   </span>
                 </div>
               </div>
@@ -348,6 +348,7 @@ function ListWalletsUser() {
               value={editViviAmount}
               onChange={(e) => setEditViviAmount(e.target.value)}
             />
+            
           </div>
         </Modal.Body>
         <Modal.Footer>
