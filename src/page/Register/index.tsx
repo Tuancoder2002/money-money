@@ -24,6 +24,7 @@ function Register() {
     email: "",
     password: "",
     confirmPassword: "",
+    id:"",
   });
 
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {

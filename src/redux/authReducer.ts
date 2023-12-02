@@ -2,10 +2,12 @@ import { PayloadAction, createSelector, createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import authApi from "../apis/authApi";
 import { RootState } from "./store";
+import { IRegisterRequest } from "../models/Auths";
 interface AuthState {
   isAuthenticated: boolean;
   accessToken: string;
   user: UserInfo | null;
+  inforUser?: IRegisterRequest;
 }
 const initialState: AuthState = {
   isAuthenticated: false,
@@ -27,6 +29,12 @@ const authSlice = createSlice({
     logout: () => {
       localStorage.clear();
     },
+    getInforUser: (
+      state,
+      action: PayloadAction<IRegisterRequest>
+    ) => {
+      state.inforUser = action.payload
+    }
   },
   extraReducers: {
     [authApi.login.pending.type]: (state, action) => {
@@ -71,5 +79,11 @@ export const selectisAuthenticated = createSelector(
   [(state: RootState) => state.auth.isAuthenticated],
   (isAuthenticated) => isAuthenticated
 );
+
+export const getInforUsers = createSelector(
+  [(state: RootState) => state.auth.inforUser],
+  (inforUser) => inforUser
+);
+
 
 export default authSlice.reducer;

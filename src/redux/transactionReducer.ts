@@ -49,7 +49,8 @@ const transactionSlice = createSlice({
     },
   },
   extraReducers: {
-    [transactionsApi.getAll.fulfilled.type]: (state, action) => {},
+    [transactionsApi.getAll.fulfilled.type]: (state, action) => {
+    },
     [transactionsApi.create.pending.type]: (state, action) => {
       // show loading
     

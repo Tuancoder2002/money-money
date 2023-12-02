@@ -6,13 +6,21 @@ import { ITransactionsModel } from "../models/Transactions/ITransactions";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 const transactionsApi = {
+  // getAll: createAsyncThunk(
+  //   "transactions/filter",
+  //   async (
+  //     data?: IFilterBodyRequest
+  //   ): Promise<IBasePaging<ITransactionsModel>> => {
+  //     const url = "/Transactions/filter";
+  //     return await axiosClient().post(url, data);
+  //   }
+  // ),
   getAll: createAsyncThunk(
     "transactions/filter",
-    async (
-      data?: IFilterBodyRequest
-    ): Promise<IBasePaging<ITransactionsModel>> => {
+    (data: IFilterBodyRequest): Promise<IBasePaging<ITransactionsModel>> => {
       const url = "/Transactions/filter";
-      return await axiosClient().post(url, data);
+      data.pagination = { pageSize: 1000 };
+      return axiosClient().post(url, data);
     }
   ),
 

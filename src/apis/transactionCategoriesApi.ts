@@ -13,7 +13,7 @@ const transactionCategoriesApi = {
       data.pagination = { pageSize: 1000 };
       return axiosClient().post(url, data);
     }
-  ),
+  ),/*  */
   create: createAsyncThunk(
     "transactions/create",
     async (request: ITransactionCategoriesModel): Promise<ITransactionCategoriesModel> => {

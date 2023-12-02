@@ -31,13 +31,14 @@ function TransactionCategories() {
     fetchData();
   }, []);
   return (
-    <div className="m-4">
+    <div className="m-4" >
       <div>
         <div className="d-flex align-items-center" style={{ fontSize: "20px", color:"#fff" }}>
           <span className="m-2">Chi tiêu hàng tháng</span>
         </div>
         {/* <hr className="text-dark d-none d-sm-block" /> */}
       </div>
+      <div style={{ maxHeight: "70vh", overflowY: "auto" }}>
       {transactionCategories.map((categories, index) => (
         <div key={categories.id} className="list-group mt-2">
           <a
@@ -60,6 +61,8 @@ function TransactionCategories() {
           </a>
         </div>
       ))}
+      </div>
+      
       <hr className="text-dark d-none d-sm-block" />
     </div>
   );

@@ -1,22 +1,23 @@
 import React, { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 import { useSelector } from "react-redux";
-import {
-  transactionActions,
-} from "../../redux/transactionReducer";
+import { transactionActions } from "../../redux/transactionReducer";
 import { IFilterBodyRequest } from "../../models/Bases/IFilterBodyRequest";
 import { FilterLogicalOperator } from "../../models/Bases/FilterLogicalOperator";
 import { FilterType } from "../../models/Bases/FilterType";
 import { SortDirection } from "../../models/Bases/SortDirection";
 import transactionsApi from "../../apis/transactionsApi";
 import { useAppDispatch } from "../../redux/hooks";
+import { selectSelectedViviId } from "../../redux/listUserSlice";
 
 function MyChart() {
   const dispatch = useAppDispatch();
   const currentDate = new Date();
   const currentMonth: number = currentDate.getMonth() + 1;
-
-  const [newArray, setNewArray] = useState<number[]>(Array(currentMonth).fill(0));
+  const paymentAccountSelectedId = useSelector(selectSelectedViviId);
+  const [newArray, setNewArray] = useState<number[]>(
+    Array(currentMonth).fill(0)
+  );
 
   const fetchTransactionData = async () => {
     try {
@@ -45,29 +46,38 @@ function MyChart() {
         pagination: {},
       };
 
+      if (paymentAccountSelectedId != null) {
+        request.filter?.details.push({
+          attributeName: "fromPaymentAccountId",
+          value: paymentAccountSelectedId,
+          filterType: FilterType.Equal,
+        });
+      }
+
       const response = await dispatch(transactionsApi.getAll(request));
 
       if (transactionsApi.getAll.fulfilled.match(response)) {
         const responseData = response.payload.data;
         dispatch(transactionActions.setTransactions(responseData));
 
-        const updatedArray = Array.from(newArray);
+        const updatedArray = new Array(currentMonth);
 
         responseData.forEach((transaction) => {
           if (transaction.transactionDate) {
             const monthTransaction =
               new Date(transaction.transactionDate).getMonth() + 1;
-              console.log("Transaction:", transaction);
-              if (isNaN(transaction.amount)) {
-                console.log("Invalid Amount for Transaction:", transaction);
-              }
-              if (updatedArray[monthTransaction] === undefined) {
-                updatedArray[monthTransaction] = 0;
-              }
-          
-              updatedArray[monthTransaction] += Number(transaction.amount);
+            console.log("Transaction:", transaction);
+            if (isNaN(transaction.amount)) {
+              console.log("Invalid Amount for Transaction:", transaction);
+            }
+            if (updatedArray[monthTransaction] === undefined) {
+              updatedArray[monthTransaction] = 0;
+            }
+
+            updatedArray[monthTransaction] += Number(transaction.amount);
           }
         });
+        console.log("");
 
         setNewArray(updatedArray);
       }
@@ -78,13 +88,13 @@ function MyChart() {
 
   useEffect(() => {
     fetchTransactionData();
-  }, []);
+  }, [paymentAccountSelectedId]);
 
   const xyValues = Array.from({ length: currentMonth }, (_, index) => ({
-    x: index + 1 ,
-    y: newArray[index+1],
+    x: index + 1,
+    y: newArray[index + 1],
   }));
-  
+
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstanceRef = useRef<Chart | null>(null);
 
@@ -95,16 +105,18 @@ function MyChart() {
         chartInstanceRef.current.destroy();
       }
 
-      const ctx = chartRef.current.getContext('2d');
+      const ctx = chartRef.current.getContext("2d");
       if (ctx) {
         chartInstanceRef.current = new Chart(ctx, {
           type: "scatter",
           data: {
-            datasets: [{
-              pointRadius: 4,
-              pointBackgroundColor: "#fff70e",
-              data: xyValues,
-            }],
+            datasets: [
+              {
+                pointRadius: 4,
+                pointBackgroundColor: "#fff70e",
+                data: xyValues,
+              },
+            ],
           },
           options: {
             // Các tùy chọn biểu đồ của bạn có thể đặt ở đây
@@ -112,11 +124,11 @@ function MyChart() {
         });
       }
     }
+
+    console.log("newArray:", newArray);
   }, [newArray]);
 
-  console.log("newArray:", newArray);
-console.log("xyValues:", xyValues);
-
+  console.log("xyValues:", xyValues);
 
   return (
     <div className="d-flex justify-content-center mt-4 mb-4">

@@ -760,7 +760,7 @@ const Transactions: React.FC = () => {
               })}
               onChange={(e) => {
                 const inputText = e.target.value;
-                const sanitizedText = inputText.replace(/[^\d]/g, ""); // Chỉ giữ lại số
+                const sanitizedText = inputText.replace(/[^\d-]/g, ""); // Chỉ giữ lại số
                 const parsedAmount = parseInt(sanitizedText, 10);
 
                 if (!isNaN(parsedAmount)) {
