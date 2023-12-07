@@ -9,7 +9,7 @@ const authApi = {
     return axiosClient().post(url, formLoginData);
   }),
 
-  getUserInfo: createAsyncThunk("auth/getUserInfo", async () => {
+  getUserInfo: createAsyncThunk("auth/getUserInfo", async (): Promise<IRegisterRequest> => {
     const url = "/auth";
     return axiosClient().get(url);
   }),

@@ -7,11 +7,19 @@ import Form from "react-bootstrap/Form";
 import { Wallet2 } from "react-bootstrap-icons";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useAppDispatch } from "../../../redux/hooks";
+import {
+  paymentAccountActions,
+  selectPaymentAccountViews,
+} from "../../../redux/paymentAccountReducer";
+import { useSelector } from "react-redux";
 
 function ListWalletsUser() {
-  const [viviData, setViviData] = useState<IPaymentAccountModel[]>([]);
+  const viviData = useSelector(selectPaymentAccountViews);
   const [editViviName, setEditViviName] = useState("");
-  const [editViviAmount, setEditViviAmount] = useState("");
+  const [editViviIcon, setEditViviIcon] = useState("");
+  
+  const [editViviAmount, setEditViviAmount] = useState<number>(0);
   const [showModalAddWallet, setShowModalAddWallet] = useState(false);
   const [selectedVivi, setSelectedVivi] = useState<IPaymentAccountModel | null>(
     null
@@ -22,19 +30,26 @@ function ListWalletsUser() {
     setSelectedVivi(vivi);
     setShowViviDetails(true);
   };
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await paymentAccountApi.getAll({});
-        setViviData(response.data);
+        dispatch(paymentAccountApi.getAll({}))
+          .unwrap()
+          .then((response) => {
+            dispatch(
+              paymentAccountActions.setPaymentAccountViews(response.data)
+            );
+          })
+          .catch((error) => {});
       } catch (error) {
         console.error("Lỗi khi lấy dữ liệu ví:", error);
       }
     };
 
     fetchData();
-  }, []);
+  }, [dispatch]);
 
   const handleOpenModalAddWallet = () => {
     setShowModalAddWallet(true);
@@ -43,7 +58,7 @@ function ListWalletsUser() {
   const handleEditViviDetails = (vivi: IPaymentAccountModel) => {
     setSelectedVivi(vivi);
     setEditViviName(vivi.name || "");
-    setEditViviAmount(vivi.initialMoney?.toString() || "");
+    setEditViviAmount(vivi.initialMoney);
     setShowEditModal(true);
   };
 
@@ -54,14 +69,16 @@ function ListWalletsUser() {
         paymentAccountApi
           .delete(accountId)
           .then((res) => {
-            return paymentAccountApi.getAll({});
-          })
-          .then((resPaymentAccounts) => {
-            setViviData(resPaymentAccounts.data);
-            setShowViviDetails(false);
             toast.success("Đã xoá tài khoản thành công.", {
               position: toast.POSITION.TOP_RIGHT,
             });
+            dispatch(paymentAccountApi.getAll({}))
+              .unwrap()
+              .then((response) => {
+                paymentAccountActions.setPaymentAccountViews(response.data);
+
+                setShowViviDetails(false);
+              });
           })
           .catch((error) => {
             toast.error("Lỗi khi xoá tài khoản.", {
@@ -80,15 +97,16 @@ function ListWalletsUser() {
       );
       if (editedViviIndex !== -1) {
         updatedViviData[editedViviIndex].name = editViviName;
-        updatedViviData[editedViviIndex].initialMoney =
-          parseFloat(editViviAmount);
+        updatedViviData[editedViviIndex].icon = editViviIcon;
+        updatedViviData[editedViviIndex].initialMoney = editViviAmount;
+          
       }
       try {
         await paymentAccountApi.update(
           selectedVivi.id,
           updatedViviData[editedViviIndex]
         );
-        setViviData(updatedViviData);
+        paymentAccountActions.setPaymentAccountViews(updatedViviData);
         setShowEditModal(false);
         toast.success("Thông tin ví đã được cập nhật thành công.", {
           position: toast.POSITION.TOP_RIGHT,
@@ -108,14 +126,15 @@ function ListWalletsUser() {
   const handleAddVivi = async () => {
     const newVivi = {
       name: editViviName,
-      initialMoney: parseFloat(editViviAmount),
+      initialMoney: editViviAmount,
+      icon: editViviIcon,
     };
 
     try {
       const response = await paymentAccountApi.create(newVivi);
       if (response.id != null) {
         const updatedViviData = [...viviData, response];
-        setViviData(updatedViviData);
+        paymentAccountActions.setPaymentAccountViews(updatedViviData);
         setShowModalAddWallet(false);
         toast.success("Tạo ví thành công.", {
           position: toast.POSITION.TOP_RIGHT,
@@ -183,7 +202,7 @@ function ListWalletsUser() {
                   {vivi.name}
                 </span>
                 <span className="m-0" style={{ fontSize: "16px" }}>
-                  {vivi.initialMoney}
+                  {vivi.initialMoney.toLocaleString('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                 </span>
               </div>
             </div>
@@ -197,7 +216,7 @@ function ListWalletsUser() {
           height: "100%",
           borderRadius: "30px",
           boxShadow: "0 0 5px #ccc",
-          color:"#fff"
+          color: "#fff",
         }}
       >
         <div className="m-2">
@@ -238,7 +257,7 @@ function ListWalletsUser() {
                     {selectedVivi.name}
                   </span>
                   <span style={{ fontSize: "13px" }}>
-                    {selectedVivi.initialMoney} Việt Nam Đồng
+                    {selectedVivi.initialMoney.toLocaleString('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0, maximumFractionDigits: 0 })} Việt Nam Đồng
                   </span>
                 </div>
               </div>
@@ -284,7 +303,7 @@ function ListWalletsUser() {
               <span className="link-success">CHIA SẺ VÍ</span>
             </div>
             <div className="mb-2">
-            <span className="link-success">CHUYỂN TIỀN</span>
+              <span className="link-success">CHUYỂN TIỀN</span>
             </div>
             <Button
               onClick={handleOpenModalAddWallet}
@@ -306,17 +325,19 @@ function ListWalletsUser() {
         </Modal.Header>
         <Modal.Body>
           <div className="d-flex justify-content-around align-items-center">
+            
             <Form.Select
               size="lg"
               aria-label="Default select example"
               className="m-2"
+              value={editViviIcon}
+              onChange={(e) => setEditViviIcon(e.target.value)}
             >
               <option>Loại ví</option>
-              <option value="1">Tiền mặt</option>
-              <option value="2">Thẻ tín dụng</option>
-              <option value="3">Thẻ visa</option>
+              <option value={"cash.png"}>Tiền mặt</option>
+              <option value={"logoATM.png"}>Thẻ ngân hàng</option>
+              <option value={"visa.png"}>Thẻ visa</option>
             </Form.Select>
-
             <Form.Control
               type="text"
               placeholder="Tên ví"
@@ -325,14 +346,29 @@ function ListWalletsUser() {
               value={editViviName}
               onChange={(e) => setEditViviName(e.target.value)}
             />
-            <Form.Control
-              type="number"
+             <Form.Control
+              name="amount"
+              type="text"
               placeholder="Số tiền"
               size="lg"
               className="m-2"
-              value={editViviAmount}
-              onChange={(e) => setEditViviAmount(e.target.value)}
+              value={editViviAmount.toLocaleString("vi-VN", {
+                style: "currency",
+                currency: "VND",
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              })}
+              onChange={(e) => {
+                const inputText = e.target.value;
+                const sanitizedText = inputText.replace(/[^\d]/g, ""); // Chỉ giữ lại số
+                const parsedAmount = parseInt(sanitizedText, 10);
+
+                if (!isNaN(parsedAmount)) {
+                  setEditViviAmount(parsedAmount);
+                }
+              }}
             />
+            
           </div>
         </Modal.Body>
         <Modal.Footer>
@@ -342,7 +378,9 @@ function ListWalletsUser() {
           >
             Huỷ
           </Button>
-          <Button variant="success" onClick={handleAddVivi}>
+          <Button variant="success" 
+          onClick={handleAddVivi}
+          >
             Lưu
           </Button>
         </Modal.Footer>
@@ -368,19 +406,35 @@ function ListWalletsUser() {
           <br />
           <label>Số tiền ban đầu:</label>
           <Form.Control
-            type="number"
-            placeholder="Số tiền"
-            size="lg"
-            className="m-2"
-            value={editViviAmount}
-            onChange={(e) => setEditViviAmount(e.target.value)}
-          />
+              name="amount"
+              type="text"
+              placeholder="Số tiền"
+              size="lg"
+              className="m-2"
+              value={editViviAmount.toLocaleString("vi-VN", {
+                style: "currency",
+                currency: "VND",
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              })}
+              onChange={(e) => {
+                const inputText = e.target.value;
+                const sanitizedText = inputText.replace(/[^\d]/g, ""); // Chỉ giữ lại số
+                const parsedAmount = parseInt(sanitizedText, 10);
+
+                if (!isNaN(parsedAmount)) {
+                  setEditViviAmount(parsedAmount);
+                }
+              }}
+            />
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCancelEdit}>
             Huỷ
           </Button>
-          <Button variant="primary" onClick={handleSaveViviDetails}>
+          <Button variant="primary" 
+          onClick={handleSaveViviDetails}
+          >
             Lưu
           </Button>
         </Modal.Footer>

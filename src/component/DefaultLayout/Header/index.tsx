@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import { Link, useNavigate } from "react-router-dom";
 import AccountUser from "../AccountUser";
-import ListUser from "../ListUser";
 import styles from "./Header.module.scss";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { vi } from "date-fns/locale";
 import { format } from "date-fns";
 import DatePicker from "react-datepicker";
@@ -16,6 +15,7 @@ import {
   CalendarDateFill,
   CaretDownFill,
   ChevronRight,
+  EmojiFrown,
   EyeFill,
   List,
   PersonFill,
@@ -37,6 +37,10 @@ import { authActions } from "../../../redux/authReducer";
 import classNames from "classnames";
 import { ITransactionsModel } from "../../../models/Transactions/ITransactions";
 import { showModal } from "../../../redux/modalSlice";
+import PaymentAccountsHeaderComponent from "../PaymentAccountsHeaderComponent";
+import { IPaymentAccountView } from "../../../models/PaymentAccounts/IPaymentAccountView";
+import { selectPaymentAccountViews, selectSelectedPaymentAccountView } from "../../../redux/paymentAccountReducer";
+import { selectSelectedVivi, setSelectedVivi } from "../../../redux/listUserSlice";
 
 const cx = classNames.bind(styles);
 
@@ -48,11 +52,14 @@ function Header() {
   const [showModalListUser, setShowModalListUser] = useState(false);
   const [showModalAccountUser, setShowModalAccountUser] = useState(false);
   const [showModalAddTransaction, setShowModalAddTransaction] = useState(false);
-  const [headerData, setHeaderData] = useState<any>({
-    imgVi: "icon.png",
-    nameVi: "Chưa chọn ví",
-    cash: "Hãy chọn ví",
-  });
+  const [headerData, setHeaderData] = useState<IPaymentAccountView>();
+  const selectedVivi = useSelector(selectSelectedVivi);
+  const paymentAccountViews = useSelector(selectPaymentAccountViews);
+
+  useEffect(() =>{
+    setHeaderData(paymentAccountViews.find(e => e.id === selectedVivi?.id));
+  },[selectedVivi,paymentAccountViews])
+
   const handleIconClick = () => {
     setShowDatePicker(true);
   };
@@ -63,13 +70,13 @@ function Header() {
     }
     setShowDatePicker(false);
   };
-  const updateHeaderData = (vivi: IPaymentAccountModel) => {
-    const updatedHeaderData = { ...headerData };
-    updatedHeaderData.cash = vivi.initialMoney;
-    updatedHeaderData.nameVi = vivi.name;
-    updatedHeaderData.imgVi = vivi.icon;
-    setHeaderData(updatedHeaderData);
-  };
+  // const updateHeaderData = (vivi: IPaymentAccountView) => {
+  //   const updatedHeaderData = { ...headerData };
+  //   updatedHeaderData.cash = vivi.currentMoney ?? vivi.initialMoney;
+  //   updatedHeaderData.nameVi = vivi.name;
+  //   updatedHeaderData.imgVi = vivi.icon;
+  //   setHeaderData(updatedHeaderData);
+  // };
 
   const openModalListUser = () => {
     setShowModalListUser(true);
@@ -103,6 +110,7 @@ function Header() {
   const handleButtonClick = () => {
     dispatch(showModal());
   };
+  console.log(headerData);
 
   return (
     <div className="wraper-header">
@@ -113,24 +121,29 @@ function Header() {
           backgroundColor: "rgba(54, 19, 84, 0.8)",
           color: "#fff",
         }}
+       
         className="d-flex justify-content-evenly"
       >
         <List onClick={toggleNavbar} size={24} className={cx("m-2", "icon")} />
         <img
-          src={headerData.imgVi}
+          
+          src={headerData?.icon || 'icon.png'}
           alt="Avatar"
           className={cx("avatar", "m-2")}
           style={{ borderRadius: "50%", height: "35px", width: "35px" }}
         />
         <NavbarBrand
           className="me-auto"
-          style={{ fontSize: "12px", color: "#fff" }}
+          style={{ fontSize: "12px", color: "#fff",  cursor: "pointer", }}
+          onClick={openModalListUser}
         >
-          {headerData.nameVi}
+        
+          {headerData?.name || 'Chưa chọn ví'}
+          
           <CaretDownFill
             size={10}
             className={cx("m-2", "icon")}
-            onClick={openModalListUser}
+            
           />
           <div
             style={{
@@ -140,7 +153,8 @@ function Header() {
               fontWeight: "bold",
             }}
           >
-            {headerData.cash}
+           {headerData?.currentMoney?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0, maximumFractionDigits: 0 }) || headerData?.initialMoney?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0, maximumFractionDigits: 0 }) || 'Hãy chọn ví'}
+
           </div>
         </NavbarBrand>
         <CalendarDateFill
@@ -166,6 +180,7 @@ function Header() {
         )}
 
         <EyeFill size={20} className={cx("m-2", "icon")} />
+
 
         <Search size={20} className={cx("m-2", "icon")} />
         <Button onClick={handleButtonClick} variant="success" className="m-2">
@@ -229,13 +244,10 @@ function Header() {
           </Link>
         </Modal.Footer>
       </Modal>
-
-      {showModalListUser && (
-        <ListUser
-          closeModal={closeModalListUser}
-          updateHeaderData={updateHeaderData}
-        />
-      )}
+      <PaymentAccountsHeaderComponent
+        closeModal={closeModalListUser}
+        isShow={showModalListUser}
+      />
     </div>
   );
 }

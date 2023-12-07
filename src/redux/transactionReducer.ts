@@ -2,6 +2,7 @@ import { PayloadAction, createSelector, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import { ITransactionsModel } from "../models/Transactions/ITransactions";
 import transactionsApi from "../apis/transactionsApi";
+import { toast } from "react-toastify";
 interface MoneyMonth {
   in: number;
   out: number;
@@ -11,6 +12,7 @@ interface TransactionState {
   moneyLastMonth: MoneyMonth;
   moneyNowMonth: MoneyMonth;
   transactions: ITransactionsModel[];
+  isShowModal?: boolean;
 }
 
 const initialState: TransactionState = {
@@ -42,9 +44,39 @@ const transactionSlice = createSlice({
     setTransactions: (state, action: PayloadAction<ITransactionsModel[]>) => {
       state.transactions = action.payload;
     },
+    setShowModal: (state, action: PayloadAction<boolean>) => {
+      state.isShowModal = action.payload;
+    },
   },
   extraReducers: {
-    [transactionsApi.getAll.fulfilled.type]: (state, action) => {},
+    [transactionsApi.getAll.fulfilled.type]: (state, action) => {
+    },
+    [transactionsApi.create.pending.type]: (state, action) => {
+      // show loading
+    
+    },
+    [transactionsApi.create.fulfilled.type]: (
+      state,
+      action: PayloadAction<ITransactionsModel>
+    ) => {
+      let responseData = action.payload;
+      if (responseData.id != null) {
+        toast.success("Thêm giao dịch thành công", {
+          position: toast.POSITION.TOP_RIGHT,
+        });
+      } else {
+        toast.error("Có lỗi khi thêm giao dịch 1", {
+          position: toast.POSITION.TOP_RIGHT,
+        });
+      }
+      // xử lý show hide modal
+    },
+    [transactionsApi.create.rejected.type]: (state, action) => {
+      console.error("Error when creating a transaction", action);
+      toast.error("Có lỗi khi thêm giao dịch", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+    },
   },
 });
 // Actions

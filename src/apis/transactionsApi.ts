@@ -6,25 +6,54 @@ import { ITransactionsModel } from "../models/Transactions/ITransactions";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 const transactionsApi = {
+  // getAll: createAsyncThunk(
+  //   "transactions/filter",
+  //   async (
+  //     data?: IFilterBodyRequest
+  //   ): Promise<IBasePaging<ITransactionsModel>> => {
+  //     const url = "/Transactions/filter";
+  //     return await axiosClient().post(url, data);
+  //   }
+  // ),
   getAll: createAsyncThunk(
     "transactions/filter",
-    async (
-      data?: IFilterBodyRequest
-    ): Promise<IBasePaging<ITransactionsModel>> => {
+    (data: IFilterBodyRequest): Promise<IBasePaging<ITransactionsModel>> => {
       const url = "/Transactions/filter";
-      return await axiosClient().post(url, data);
+      data.pagination = { pageSize: 1000 };
+      return axiosClient().post(url, data);
     }
   ),
-  create(data: ITransactionsModel): Promise<ITransactionsModel> {
-    const url = "/Transactions";
-    const formData = ConvertObjectToFormData(data, new FormData());
-    return axiosClient(contentTypeFormData).post(url, formData);
-  },
-  update(id: string, data: ITransactionsModel): Promise<ITransactionsModel> {
-    const url = `/Transactions/${id}`;
-    const formData = ConvertObjectToFormData(data, new FormData());
-    return axiosClient(contentTypeFormData).put(url, formData);
-  },
+
+  create: createAsyncThunk(
+    "transactions/create",
+    async (request: ITransactionsModel): Promise<ITransactionsModel> => {
+      const url = "/Transactions";
+      const formData = ConvertObjectToFormData(request, new FormData());
+      const response = await axiosClient(contentTypeFormData).post<
+        FormData,
+        ITransactionsModel
+      >(url, formData);
+      return response; // Trả về dữ liệu từ phản hồi
+    }
+  ),
+  update: createAsyncThunk(
+    "transactions/update",
+    async ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: ITransactionsModel;
+    }): Promise<ITransactionsModel> => {
+      const url = `/Transactions/${id}`;
+      const formData = ConvertObjectToFormData(data, new FormData());
+      const response = await axiosClient(contentTypeFormData).put(
+        url,
+        formData
+      );
+      return response.data; // Trả về dữ liệu từ phản hồi
+    }
+  ),
 };
 
 export default transactionsApi;

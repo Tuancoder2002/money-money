@@ -10,7 +10,10 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../../redux/store";
 import { hideModal } from "../../../redux/modalSlice";
 import UncontrolledExample from "../Carousel";
-import { selectSelectedVivi } from "../../../redux/listUserSlice";
+import {
+  selectSelectedVivi,
+  selectSelectedViviId,
+} from "../../../redux/listUserSlice";
 import {
   selectMoneyLastMonth,
   selectMoneyNowMonth,
@@ -20,14 +23,32 @@ import {
 } from "../../../redux/transactionReducer";
 import { IFilterBodyRequest } from "../../../models/Bases/IFilterBodyRequest";
 import { useAppDispatch } from "../../../redux/hooks";
+import {
+  paymentAccountActions,
+  selectPaymentAccountViews,
+} from "../../../redux/paymentAccountReducer";
+import {
+  selectSelectedCategories,
+  transactionCategoriesAction,
+} from "../../../redux/transactionCategoriesReducer";
+import transactionCategoriesApi from "../../../apis/transactionCategoriesApi";
+import cloneDeep from "lodash/cloneDeep";
+import { EmojiFrown } from "react-bootstrap-icons";
+import { FilterLogicalOperator } from "../../../models/Bases/FilterLogicalOperator";
+import { FilterType } from "../../../models/Bases/FilterType";
+import { SortDirection } from "../../../models/Bases/SortDirection";
 
 const Transactions: React.FC = () => {
+  const currentDate = new Date().toLocaleString("sv");
+  console.log("ngày", new Date(), new Date().toISOString().slice(0, 16));
   const transactionData = useSelector(selectTransactions);
   const moneyLastMonth = useSelector(selectMoneyLastMonth);
   const moneyNowMonth = useSelector(selectMoneyNowMonth);
   const [selectedTransaction, setSelectedTransaction] =
     useState<ITransactionsModel | null>(null);
-  const [viviData, setViviData] = useState<IPaymentAccountModel[]>([]);
+
+  const viviData = useSelector(selectPaymentAccountViews);
+  const transactionCategories = useSelector(selectSelectedCategories);
   // const [showTransactionDetails, setShowTransactionDetails] = useState(false);
   // const handleShowDetails = (vivi: ITransactionsModel) => {
   //   setSelectedTransaction(vivi);
@@ -37,9 +58,10 @@ const Transactions: React.FC = () => {
   const [showModalAddTransaction, setShowModalAddTransaction] = useState(false);
   const [modalUpdateTransaction, setModalUpdateTransaction] = useState(false);
 
-  const [editTransactionAmount, setEditTransactionAmount] = useState("");
+  const [editTransactionAmount, setEditTransactionAmount] = useState(0);
   const [editFromPaymentAccountId, setFromPaymentAccountId] = useState("");
-  const [editTransactionDate, setEditTransactionDate] = useState("");
+  const [editCategoryId, setCategoryId] = useState("");
+  const [editTransactionDate, setEditTransactionDate] = useState(currentDate);
   const [editTransactionDescription, setEditTransactionDescription] =
     useState("");
   const [collapsedLast, setCollapsedLast] = useState(true);
@@ -48,10 +70,11 @@ const Transactions: React.FC = () => {
   const toggleTransactionsLast = () => setCollapsedLast(!collapsedLast);
   const toggleTransactionsNow = () => setCollapsedNow(!collapsedNow);
 
-  const accountIdToFilter = useSelector(selectSelectedVivi);
+  const accountIdToFilter = useSelector(selectSelectedViviId);
   const totalMoney = useSelector(selectTotalMoney);
 
   useEffect(() => {
+    fetchTransactionData();
     const { moneyLastMonthInByAccount, moneyLastMonthOutByAccount } =
       transactionData.reduce(
         (totals, vivi) => {
@@ -132,31 +155,100 @@ const Transactions: React.FC = () => {
 
   const fetchTransactionData = async () => {
     try {
-      const request: IFilterBodyRequest = {};
-      dispatch(transactionsApi.getAll(request))
-        .unwrap()
-        .then((response) => {
-          dispatch(transactionActions.setTransactions(response.data));
-        })
-        .catch((error) => {});
-      // const response = await transactionsApi.getAll({});
-      // setTransactionData(response.data);
+      var request: IFilterBodyRequest = {
+        filter: {
+          logicalOperator: FilterLogicalOperator.And,
+          details: [
+            {
+              attributeName: "transactionDate",
+              value: "2023-1-1",
+              filterType: FilterType.GreaterThanOrEqual,
+            },
+            {
+              attributeName: "transactionDate",
+              value: "2024-1-1",
+              filterType: FilterType.LessThan,
+            },
+          ],
+        },
+        orders: [
+          {
+            field: "transactionDate",
+            direction: SortDirection.Asc,
+          },
+        ],
+        pagination: {},
+      };
+      const response = await dispatch(transactionsApi.getAll(request));
+
+      if (transactionsApi.getAll.fulfilled.match(response)) {
+        const responseData = response.payload.data; // Lấy mảng dữ liệu từ IBasePaging
+
+        dispatch(transactionActions.setTransactions(responseData));
+
+        const tongChiTieu = responseData
+          .filter((e) => e.fromPaymentAccountId === accountIdToFilter)
+          .reduce(function (current, next) {
+            return current + next.amount;
+          }, 0);
+
+        // Todo: Lấy tài khoản thanh toán hiện tại dựa trên logic cụ thể
+        let currentPaymentAccount = cloneDeep(
+          viviData.find((v) => v.id === accountIdToFilter)
+        );
+        console.log("hello", currentPaymentAccount);
+
+        if (currentPaymentAccount) {
+          if (currentPaymentAccount != null) {
+            currentPaymentAccount.currentMoney =
+              currentPaymentAccount.initialMoney + tongChiTieu;
+          }
+          dispatch(
+            paymentAccountActions.setOrUpdatePaymentAccountView(
+              currentPaymentAccount
+            )
+          );
+        }
+      }
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu", error);
     }
   };
+
   // Hàm này sẽ gọi API để lấy danh sách ví và cập nhật vào state khi component được render.
   const fetchViviData = async () => {
     try {
-      const response = await paymentAccountApi.getAll({});
-      setViviData(response.data);
+      dispatch(paymentAccountApi.getAll({}))
+        .unwrap()
+        .then((response) => {
+          dispatch(paymentAccountActions.setPaymentAccountViews(response.data));
+        })
+        .catch((error) => {});
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu ví:", error);
     }
   };
+
+  const fetchCategories = async () => {
+    try {
+      dispatch(transactionCategoriesApi.getAll({}))
+        .unwrap()
+        .then((response) => {
+          console.log("transactionCategoriesApi.getAll", response);
+          dispatch(
+            transactionCategoriesAction.setTransactionCategories(response.data)
+          );
+        })
+        .catch((error) => {});
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu ví:", error);
+    }
+  };
+
   useEffect(() => {
     fetchViviData();
     fetchTransactionData();
+    fetchCategories();
   }, []);
 
   const handleAddTransactions = async () => {
@@ -164,29 +256,23 @@ const Transactions: React.FC = () => {
       amount: editTransactionAmount,
       transactionDate: editTransactionDate,
       fromPaymentAccountId: editFromPaymentAccountId,
+      categoryId: editCategoryId,
       description: editTransactionDescription,
     };
 
     try {
-      const response = await transactionsApi.create(newVivi);
-      if (response.id != null) {
-        const updatedViviData = [...transactionData, response];
-        dispatch(transactionActions.setTransactions(updatedViviData));
-        setShowModalAddTransaction(false);
-        toast.success("Thêm giao dịch thành công", {
-          position: toast.POSITION.TOP_RIGHT,
-        });
-      } else {
-        toast.error("Có lỗi khi thêm giao dịch", {
-          position: toast.POSITION.TOP_RIGHT,
-        });
+      const response = await dispatch(transactionsApi.create(newVivi));
+
+      if (transactionsApi.create.fulfilled.match(response)) {
+        const responseData = response.payload; // Dữ liệu phản hồi từ createAsyncThunk
+
+        if (responseData.id != null) {
+          const updatedViviData = [...transactionData, responseData];
+          dispatch(transactionActions.setTransactions(updatedViviData));
+          setShowModalAddTransaction(false);
+        }
       }
-    } catch (error) {
-      console.error("Error when creating a transaction", error);
-      toast.error("Có lỗi khi thêm giao dịch", {
-        position: toast.POSITION.TOP_RIGHT,
-      });
-    }
+    } catch (error) {}
   };
 
   const handleSaveViviDetails = async () => {
@@ -195,19 +281,34 @@ const Transactions: React.FC = () => {
       const editedTransactionIndex = updatedTransactionData.findIndex(
         (vivi) => vivi.id === selectedTransaction.id
       );
+
       if (editedTransactionIndex !== -1) {
-        updatedTransactionData[editedTransactionIndex].id =
-          editFromPaymentAccountId;
+        // Đừng thay đổi giá trị của 'id' của giao dịch khi cập nhật
+        // updatedTransactionData[editedTransactionIndex].id = editFromPaymentAccountId;
+
         try {
-          await transactionsApi.update(
-            selectedTransaction.id,
-            updatedTransactionData[editedTransactionIndex]
+          const response = await dispatch(
+            transactionsApi.update({
+              id: selectedTransaction.id,
+              data: updatedTransactionData[editedTransactionIndex],
+            })
           );
-          dispatch(transactionActions.setTransactions(updatedTransactionData));
-          setModalUpdateTransaction(false);
-          toast.success("Thông tin ví đã được cập nhật thành công.", {
-            position: toast.POSITION.TOP_RIGHT,
-          });
+
+          if (transactionsApi.update.fulfilled.match(response)) {
+            const responseData = response.payload; // Dữ liệu phản hồi từ createAsyncThunk
+
+            dispatch(
+              transactionActions.setTransactions(updatedTransactionData)
+            );
+            setModalUpdateTransaction(false);
+            toast.success("Thông tin ví đã được cập nhật thành công.", {
+              position: toast.POSITION.TOP_RIGHT,
+            });
+          } else {
+            toast.error("Không thể cập nhật thông tin ví.", {
+              position: toast.POSITION.TOP_RIGHT,
+            });
+          }
         } catch (error) {
           toast.error("Không thể cập nhật thông tin ví.", {
             position: toast.POSITION.TOP_RIGHT,
@@ -237,6 +338,8 @@ const Transactions: React.FC = () => {
   const initialMoney = useSelector(
     (state: RootState) => state.listUser.selectedVivi?.initialMoney ?? 0
   );
+
+  const money = totalMoney + moneyNowMonth.in + moneyNowMonth.out;
 
   return (
     <div>
@@ -275,7 +378,16 @@ const Transactions: React.FC = () => {
                             <span className="p-1 d-flex justify-content-between">
                               <span>Tiền vào:</span>
                               <span className="text-success">
-                                + {initialMoney ? moneyLastMonth.in : 0}
+                                +{" "}
+                                {(initialMoney
+                                  ? moneyLastMonth.in
+                                  : 0
+                                ).toLocaleString("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 0,
+                                })}
                               </span>
                             </span>
                           </li>
@@ -283,7 +395,15 @@ const Transactions: React.FC = () => {
                             <span className="p-1 d-flex justify-content-between">
                               <span>Tiền ra:</span>
                               <span className="text-danger">
-                                {initialMoney ? moneyLastMonth.out : 0}
+                                {(initialMoney
+                                  ? moneyLastMonth.out
+                                  : 0
+                                ).toLocaleString("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 0,
+                                })}
                               </span>
                             </span>
                           </li>
@@ -294,7 +414,13 @@ const Transactions: React.FC = () => {
                                 {/* {(initialMoney ? moneyLastMonthInByAccount : 0) +
                                   (initialMoney ? moneyLastMonthOutByAccount : 0) +
                                   (initialMoney ?? 0)} */}
-                                {totalMoney}
+
+                                {totalMoney.toLocaleString("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 0,
+                                })}
                               </span>
                             </span>
                           </li>
@@ -339,7 +465,16 @@ const Transactions: React.FC = () => {
                             <span className="p-1 d-flex justify-content-between">
                               <span>Tiền vào:</span>
                               <span className="text-success">
-                                + {initialMoney ? moneyNowMonth.in : 0}
+                                +{" "}
+                                {(initialMoney
+                                  ? moneyNowMonth.in
+                                  : 0
+                                ).toLocaleString("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 0,
+                                })}
                               </span>
                             </span>
                           </li>
@@ -347,7 +482,15 @@ const Transactions: React.FC = () => {
                             <span className="p-1 d-flex justify-content-between">
                               <span>Tiền ra:</span>
                               <span className="text-danger">
-                                {initialMoney ? moneyNowMonth.out : 0}
+                                {(initialMoney
+                                  ? moneyNowMonth.out
+                                  : 0
+                                ).toLocaleString("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 0,
+                                })}
                               </span>
                             </span>
                           </li>
@@ -358,16 +501,19 @@ const Transactions: React.FC = () => {
                                 {/* {(initialMoney ? moneyNowMonthInByAccount : 0) +
                                   (initialMoney ? moneyNowMonthOutByAccount : 0) +
                                   (initialMoney ?? 0)} */}
-                                {totalMoney +
-                                  moneyNowMonth.in +
-                                  moneyNowMonth.out}
+                                {money.toLocaleString("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 0,
+                                })}
                               </span>
                             </span>
                           </li>
                           <li>
                             <span
                               className="p-1 d-flex justify-content-center text-success"
-                              onClick={toggleTransactionsLast}
+                              onClick={toggleTransactionsNow}
                             >
                               <span
                                 className="nav-link"
@@ -402,35 +548,20 @@ const Transactions: React.FC = () => {
                           style={{ fontSize: "14px" }}
                         >
                           <li>
-                            <span className="p-1 d-flex justify-content-between">
-                              <span>Tiền vào</span>
-                              <span className="text-primary">3.000.000</span>
+                            <span className="p-1 d-flex justify-content-center">
+                              <EmojiFrown size={120} className="m-2 icon" />
                             </span>
                           </li>
                           <li>
-                            <span className="p-1 d-flex justify-content-between">
-                              <span>Tiền ra</span>
-                              <span className="text-danger">300.000</span>
-                            </span>
-                          </li>
-                          <li>
-                            <span className="p-1 d-flex justify-content-between">
-                              <span></span>
-                              <span className="" style={{ color: "#fff" }}>
-                                + 2.700.000
-                              </span>
-                            </span>
-                          </li>
-                          <li>
-                            <span
-                              className="p-1 d-flex justify-content-center text-success"
-                              onClick={toggleTransactionsNow}
-                            >
+                            <span className="p-1 d-flex justify-content-center text-success">
                               <span
                                 className="nav-link"
-                                style={{ color: "#2db84c", cursor: "pointer" }}
+                                style={{
+                                  color: "#2db84c",
+                                  cursor: "pointer",
+                                }}
                               >
-                                XEM BÁO CÁO CHO GIAI ĐOẠN NÀY
+                                CHƯA CÓ GIAO DỊCH CHO GIAI ĐOẠN NÀY
                               </span>
                             </span>
                           </li>
@@ -486,7 +617,12 @@ const Transactions: React.FC = () => {
                                 <span
                                   style={{ color: "#fff", fontSize: "14px" }}
                                 >
-                                  {vivi.amount}
+                                  {vivi.amount.toLocaleString("vi-VN", {
+                                    style: "currency",
+                                    currency: "VND",
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0,
+                                  })}
                                 </span>
                                 <span
                                   style={{ color: "#e94b4b", fontSize: "14px" }}
@@ -505,39 +641,65 @@ const Transactions: React.FC = () => {
                 <Collapse isOpen={!collapsedNow} navbar>
                   <Nav navbar>
                     <NavItem>
-                      {transactionData.map((vivi, index) => (
-                        <NavLink key={vivi.id} style={{ cursor: "pointer" }}>
-                          <div className="d-flex justify-content-between">
-                            <div className="d-flex">
-                              <img
-                                src="https://cdn-icons-png.flaticon.com/512/6913/6913041.png" // Thay thế bằng đường dẫn của hình ảnh avatar
-                                alt="Avatar"
-                                style={{ width: "30px", height: "30px" }}
-                                className="m-1"
-                              />
-                              <NavbarBrand
-                                className="me-auto"
-                                style={{ fontSize: "12px" }}
-                              >
-                                {vivi.fromPaymentAccountName}
-                                <div
-                                  style={{
-                                    fontSize: "13px",
-                                    marginLeft: "1px",
-                                  }}
+                      {transactionData
+                        .filter(
+                          (vivi) =>
+                            vivi.fromPaymentAccountId === accountIdToFilter &&
+                            vivi.transactionDate && // Check if transactionDate is defined
+                            new Date(vivi.transactionDate).getMonth() + 1 ===
+                              currentMonth &&
+                            new Date(vivi.transactionDate).getFullYear() ===
+                              currentYear
+                        )
+                        .map((vivi, index) => (
+                          <NavLink
+                            key={vivi.id}
+                            style={{ cursor: "pointer" }}
+                            onClick={() => setModalUpdateTransaction(true)}
+                          >
+                            <div className="d-flex justify-content-between">
+                              <div className="d-flex">
+                                <img
+                                  src="https://cdn-icons-png.flaticon.com/512/6913/6913041.png" // Thay thế bằng đường dẫn của hình ảnh avatar
+                                  alt="Avatar"
+                                  style={{ width: "30px", height: "30px" }}
+                                  className="m-1"
+                                />
+                                <NavbarBrand
+                                  className="me-auto"
+                                  style={{ fontSize: "12px" }}
                                 >
-                                  {vivi.transactionDate}
-                                </div>
-                              </NavbarBrand>
+                                  {vivi.fromPaymentAccountName}
+                                  <div
+                                    style={{
+                                      fontSize: "13px",
+                                      marginLeft: "1px",
+                                    }}
+                                  >
+                                    {vivi.transactionDate}
+                                  </div>
+                                </NavbarBrand>
+                              </div>
+                              <div className="d-flex flex-column">
+                                <span
+                                  style={{ color: "#fff", fontSize: "14px" }}
+                                >
+                                  {vivi.amount.toLocaleString("vi-VN", {
+                                    style: "currency",
+                                    currency: "VND",
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0,
+                                  })}
+                                </span>
+                                <span
+                                  style={{ color: "#e94b4b", fontSize: "14px" }}
+                                >
+                                  {vivi.description}
+                                </span>
+                              </div>
                             </div>
-                            <span
-                              style={{ color: "#000000", fontSize: "13px" }}
-                            >
-                              {vivi.amount}
-                            </span>
-                          </div>
-                        </NavLink>
-                      ))}
+                          </NavLink>
+                        ))}
                     </NavItem>
                   </Nav>
                 </Collapse>
@@ -562,29 +724,49 @@ const Transactions: React.FC = () => {
               onChange={(e) => setFromPaymentAccountId(e.target.value)}
             >
               <option>Ví</option>
-              {viviData.map((vivi, index) => (
-                <option value={vivi.id} key={vivi.id}>
-                  {vivi.name}
-                </option>
-              ))}
+              {viviData &&
+                viviData.map((vivi, index) => (
+                  <option value={vivi.id} key={vivi.id}>
+                    {vivi.name}
+                  </option>
+                ))}
             </Form.Select>
             <Form.Select
               size="lg"
               aria-label="Default select example"
               className="m-2"
+              value={editCategoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
             >
               <option>Nhóm</option>
-
-              <option value="1"></option>
+              {transactionCategories &&
+                transactionCategories.map((categories, index) => (
+                  <option value={categories.id} key={categories.id}>
+                    {categories.name}
+                  </option>
+                ))}
             </Form.Select>
             <Form.Control
               name="amount"
-              type="number"
+              type="text"
               placeholder="Số tiền"
               size="lg"
               className="m-2"
-              value={editTransactionAmount}
-              onChange={(e) => setEditTransactionAmount(e.target.value)}
+              value={editTransactionAmount.toLocaleString("vi-VN", {
+                style: "currency",
+                currency: "VND",
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              })}
+              onChange={(e) => {
+                const inputText = e.target.value;
+                const sanitizedText = inputText.replace(/[^\d-]/g, ""); // Chỉ giữ lại số
+                const parsedAmount = parseInt(sanitizedText, 10);
+
+                if (!isNaN(parsedAmount)) {
+                  setEditTransactionAmount(parsedAmount);
+                }
+              }}
             />
           </div>
 
@@ -595,6 +777,7 @@ const Transactions: React.FC = () => {
               size="lg"
               className="m-2"
               value={editTransactionDate}
+              // defaultValue={currentDate}
               onChange={(e) => setEditTransactionDate(e.target.value)}
             />
             <Form.Control
@@ -635,11 +818,12 @@ const Transactions: React.FC = () => {
               onChange={(e) => setFromPaymentAccountId(e.target.value)}
             >
               <option>Ví</option>
-              {viviData.map((vivi, index) => (
-                <option value={vivi.id} key={vivi.id}>
-                  {vivi.name}
-                </option>
-              ))}
+              {viviData &&
+                viviData.map((vivi, index) => (
+                  <option value={vivi.id} key={vivi.id}>
+                    {vivi.name}
+                  </option>
+                ))}
             </Form.Select>
             <Form.Select
               size="lg"
@@ -657,7 +841,7 @@ const Transactions: React.FC = () => {
               size="lg"
               className="m-2"
               value={editTransactionAmount}
-              onChange={(e) => setEditTransactionAmount(e.target.value)}
+              onChange={(e) => setEditTransactionAmount(+e.target.value)}
             />
           </div>
 

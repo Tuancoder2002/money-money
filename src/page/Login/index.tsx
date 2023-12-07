@@ -95,9 +95,11 @@ function Login() {
                             onChange={handleChange} // Lắng nghe sự thay đổi trên ô input email
                           />
                           <label
-                            className="form-label"
-                            htmlFor="form2Example17"
-                          ></label>
+                              className="form-label"
+                              htmlFor="form2Example27"
+                            >
+                              Accont Name
+                            </label>
                         </div>
 
                         <div className="form-outline mb-4">
